@@ -56,8 +56,8 @@ func initialiseme(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func approleid(w http.ResponseWriter, r *http.Request) {
-    if r.URL.Path != "/approleid" {
+func approlename(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/approlename" {
         http.Error(w, "404 not found.", http.StatusNotFound)
         return
     }
@@ -126,13 +126,14 @@ func main() {
     
 	http.HandleFunc("/health", health)
 	http.HandleFunc("/initialiseme", initialiseme)
-	http.HandleFunc("/approleid", approleid)
+	http.HandleFunc("/approlename", approlename)
     log.Fatal(http.ListenAndServe(portDetail.String(), nil))
 }
 
 func queryVault(vaultAddress string, url string, token string, data map[string]interface{}, action string, wrapped bool) (map[string]interface{}, bool) {
     
     var success = true
+    var result map[string]interface{}
     
     fmt.Println("\nDebug Vars Start")
 	fmt.Println("\nVAULT_ADDR:>", vaultAddress)
@@ -157,13 +158,13 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
     if err != nil {
         fmt.Println("Failed to query the Vault API \nError : ", err)
         success = false
+        return result, success
     }
     defer resp.Body.Close()
 
     fmt.Println("response Status:", resp.Status)
 	fmt.Println("response Headers:", resp.Header)
 	
-	var result map[string]interface{}
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
