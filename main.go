@@ -109,7 +109,7 @@ func main() {
 
     portPtr := flag.Int("port", 8314, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
     ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-    vaultAddressPtr := flag.String("vault", "192.168.2.11", "Vault IP Address - defaults to 192.168.2.11")
+    vaultAddressPtr := flag.String("vault", "http://192.168.2.11:8200", "Vault IP Address - defaults to 192.168.2.11")
     vaultAddress = *vaultAddressPtr
     flag.Parse()
     
@@ -145,7 +145,6 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	apiCall := vaultAddress + url
 	bytesRepresentation, err := json.Marshal(data)
 
-	//var jsonStr = []byte(`{"title":"Buy cheese and bread for breakfast."}`)
     req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
     req.Header.Set("X-Vault-Token", token)
     req.Header.Set("Content-Type", "application/json")
@@ -156,7 +155,7 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
     client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
-        fmt.Println("Failed to query the Vault API \nError : %v \n", err)
+        fmt.Println("Failed to query the Vault API \nError : ", err)
         success = false
     }
     defer resp.Body.Close()
