@@ -41,13 +41,6 @@ Vagrant.configure("2") do |config|
         leader01.vm.network "forwarded_port", guest: 8200, host: 8200
     end
 
-    config.vm.define "redis01" do |redis01|
-        redis01.vm.hostname = ENV['REDIS_MASTER_NAME']
-        redis01.vm.network "private_network", ip: ENV['REDIS_MASTER_IP']
-        redis01.vm.provision :shell, path: "scripts/install_redis.sh"
-    end
-    
-
     (1..2).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
@@ -57,11 +50,5 @@ Vagrant.configure("2") do |config|
         end
     end
 
-    config.vm.define "web01" do |web01|
-        web01.vm.hostname = ENV['NGINX_NAME']
-        web01.vm.network "private_network", ip: ENV['NGINX_IP']
-        web01.vm.network "forwarded_port", guest: ENV['NGINX_GUEST_PORT'], host: ENV['NGINX_HOST_PORT']
-        web01.vm.provision :shell, path: "scripts/install_webserver.sh"
-   end
 
 end

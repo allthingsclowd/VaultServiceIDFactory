@@ -6,3 +6,5 @@ main
 .approle-id
 .secret-id
 .orchestrator-token
+scripts/*.json
+secret_id_config.json

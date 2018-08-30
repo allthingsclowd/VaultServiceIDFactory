@@ -3,7 +3,6 @@ sudo: required
 addons:
   apt:
     packages:
-    - redis-server
     - lynx
     - jq
 go:
@@ -19,16 +18,9 @@ before_script:
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
 - source ./var.env
-- export REDIS_MASTER_IP=127.0.0.1
-- export REDIS_MASTER_PASSWORD=""
 - export LEADER_IP=127.0.0.1
-# - sudo VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable -version=1 kv
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv put kv/development/redispassword value=${REDIS_MASTER_PASSWORD}
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault kv get kv/development/redispassword
-- consul kv put "development/REDIS_MASTER_IP" "127.0.0.1"
-- consul kv put "development/LEADER_IP" "127.0.0.1"
-- bash scripts/travis_run_go_app.sh
+- bash scripts/travis_run_VaultServiceIDFactory.sh
 deploy:
   provider: releases
   api_key:
@@ -36,8 +28,8 @@ deploy:
   file_glob: true
   file: 
     - "./templates/*"
-    - "./webcounter"
+    - "./VaultServiceIDFactory"
   skip_cleanup: true
   on:
-    repo: allthingsclowd/web_page_counter
+    repo: allthingsclowd/VaultServiceIDFactory
     tags: true
