@@ -1,22 +1,11 @@
 Vagrant.configure("2") do |config|
 
     #override global variables to fit Vagrant setup
-    ENV['REDIS_MASTER_NAME']||="masterredis01"
-    ENV['REDIS_MASTER_IP']||="192.168.2.200"
-    ENV['REDIS_SLAVE_NAME']||="slaveredis02"
-    ENV['REDIS_SLAVE_IP']||="192.168.2.201"
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
-    ENV['NGINX_NAME']||="web01"
-    ENV['NGINX_IP']||="192.168.2.250"
-    ENV['NGINX_GUEST_PORT']||="9090"
-    ENV['NGINX_HOST_PORT']||="9090"
-    ENV['VAULT_NAME']||="vault01"
-    ENV['VAULT_IP']||="192.168.2.10"
     ENV['LEADER_NAME']||="leader01"
     ENV['LEADER_IP']||="192.168.2.11"
-    ENV['LISTENER_COUNT']||="3"
-    ENV['SERVER_COUNT']||="2"
+    ENV['SERVER_COUNT']||="1"
     ENV['DD_API_KEY']||="DON'T FORGET TO SET ME FROM CLI PRIOR TO DEPLOYMENT"
     
     #global config
@@ -41,7 +30,7 @@ Vagrant.configure("2") do |config|
         leader01.vm.network "forwarded_port", guest: 8200, host: 8200
     end
 
-    (1..2).each do |i|
+    (1..1).each do |i|
         config.vm.define "godev0#{i}" do |devsvr|
             devsvr.vm.hostname = "godev0#{i}"
             devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
