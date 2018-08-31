@@ -1,3 +1,6 @@
+// VaultServiceIDFactory
+// SIMPLE API SERVICE THAT UPON RECEIPT OF AN APPROLEID PROVIDES A SERVICEID
+// FACILITATES BOOTSTRAPPING OF APPLICATIONS
 package main
 
 import (
@@ -27,6 +30,7 @@ var targetIP string
 var thisServer string
 var vaultAddress string
 
+// BOOTSTRAP THIS APPLICATION WITH A WRAPPED VAULT TOKEN
 func initialiseme(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/initialiseme" {
         http.Error(w, "404 not found.", http.StatusNotFound)
@@ -56,6 +60,7 @@ func initialiseme(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+// UPON RECEIPT OF A VALID APPROLENAME IN A JSON POST RETURN A WRAPPED SECRETID
 func approlename(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/approlename" {
         http.Error(w, "404 not found.", http.StatusNotFound)
@@ -64,7 +69,7 @@ func approlename(w http.ResponseWriter, r *http.Request) {
  
     switch r.Method {
     case "POST":
-        if appHealth == "INITIALISED" {
+        if appHealth == "INITIALISED" ******* or "TOKENDELIVERED" ******** {
             decoder := json.NewDecoder(r.Body)
             var role approle
             err := decoder.Decode(&role)
@@ -107,7 +112,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-    portPtr := flag.Int("port", 8314, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
+    portPtr := flag.Int("port", 8314, "Default's to port 8314. Use -port=nnnn to use listen on an alternate port.")
     ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
     vaultAddressPtr := flag.String("vault", "http://192.168.2.11:8200", "Vault IP Address - defaults to 192.168.2.11")
     vaultAddress = *vaultAddressPtr
