@@ -36,6 +36,7 @@ Vagrant.configure("2") do |config|
             devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
             devsvr.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
             devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
+            devsvr.vm.network "forwarded_port", guest: 8314, host: 8314
         end
     end
 

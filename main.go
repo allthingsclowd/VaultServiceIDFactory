@@ -69,7 +69,7 @@ func approlename(w http.ResponseWriter, r *http.Request) {
  
     switch r.Method {
     case "POST":
-        if appHealth == "INITIALISED" ******* or "TOKENDELIVERED" ******** {
+        if appHealth == "INITIALISED" || appHealth == "TOKENDELIVERED" {
             decoder := json.NewDecoder(r.Body)
             var role approle
             err := decoder.Decode(&role)
@@ -149,9 +149,19 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	fmt.Println("\nDebug Vars End")
 
 	apiCall := vaultAddress + url
-	bytesRepresentation, err := json.Marshal(data)
+    bytesRepresentation, err := json.Marshal(data)
+    if err != nil {
+        fmt.Println("Failed to query the Vault API \nError : ", err)
+        success = false
+        return result, success
+    }
 
     req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
+    if err != nil {
+        fmt.Println("Failed to query the Vault API \nError : ", err)
+        success = false
+        return result, success
+    }
     req.Header.Set("X-Vault-Token", token)
     req.Header.Set("Content-Type", "application/json")
     if wrapped {
