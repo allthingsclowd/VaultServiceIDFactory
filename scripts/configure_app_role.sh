@@ -19,19 +19,12 @@ fi
 export VAULT_ADDR=http://${IP}:8200
 export VAULT_SKIP_VERIFY=true
 
-VAULT_TOKEN=`cat /usr/local/bootstrap/.provisioner-token`
+VAULT_TOKEN=`cat /usr/local/bootstrap/.admin-token`
 
 ##--------------------------------------------------------------------
 ## Configure Audit Backend
 
 VAULT_AUDIT_LOG="${LOG}"
-
-PKG="curl jq"
-which ${PKG} &>/dev/null || {
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update
-  apt-get install -y ${PKG}
-}
 
 tee audit-backend-file.json <<EOF
 {
@@ -53,7 +46,7 @@ curl \
 ## Create ACL Policy
 
 # Policy to apply to AppRole token
-tee goapp-secret-read.json <<EOF
+tee id-factory-secret-read.json <<EOF
 {"policy":"path \"kv/development/redispassword\" {capabilities = [\"read\", \"list\"]}"}
 EOF
 
@@ -62,8 +55,8 @@ curl \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
-    --data @goapp-secret-read.json \
-    ${VAULT_ADDR}/v1/sys/policy/goapp-secret-read | jq .
+    --data @id-factory-secret-read.json \
+    ${VAULT_ADDR}/v1/sys/policy/id-factory-secret-read | jq .
 
 ##--------------------------------------------------------------------
 
@@ -81,7 +74,7 @@ curl \
 tee approle.json <<EOF
 {
   "type": "approle",
-  "description": "Demo AppRole auth backend for goapp webcounter deployment"
+  "description": "Demo AppRole auth backend for id-factory deployment"
 }
 EOF
 
@@ -96,13 +89,13 @@ curl \
 # Check if AppRole Exists
 APPROLEID=`curl  \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-   ${VAULT_ADDR}/v1/auth/approle/role/goapp/role-id | jq -r .data.role_id`
+   ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
 if [ "${APPROLEID}" == null ]; then
     # AppRole backend configuration
-    tee goapp-approle-role.json <<EOF
+    tee id-factory-approle-role.json <<EOF
     {
-        "role_name": "goapp",
+        "role_name": "id-factory",
         "bind_secret_id": true,
         "secret_id_ttl": "24h",
         "secret_id_num_uses": "0",
@@ -110,7 +103,7 @@ if [ "${APPROLEID}" == null ]; then
         "token_max_ttl": "30m",
         "period": 0,
         "policies": [
-            "goapp-secret-read"
+            "id-factory-secret-read"
         ]
     }
 EOF
@@ -120,12 +113,12 @@ EOF
         --location \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
-        --data @goapp-approle-role.json \
-        ${VAULT_ADDR}/v1/auth/approle/role/goapp | jq .
+        --data @id-factory-approle-role.json \
+        ${VAULT_ADDR}/v1/auth/approle/role/id-factory | jq .
 
     APPROLEID=`curl  \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
-   ${VAULT_ADDR}/v1/auth/approle/role/goapp/role-id | jq -r .data.role_id`
+   ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
 fi
 
@@ -135,7 +128,7 @@ echo -n ${APPROLEID} > /usr/local/bootstrap/.approle-id
 # Write minimal secret-id payload
 tee secret_id_config.json <<EOF
 {
-  "metadata": "{ \"tag1\": \"goapp production\" }"
+  "metadata": "{ \"tag1\": \"id-factory production\" }"
 }
 EOF
 
@@ -143,10 +136,10 @@ SECRET_ID=`curl \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
-    ${VAULT_ADDR}/v1/auth/approle/role/goapp/secret-id | jq -r .data.secret_id`
+    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/secret-id | jq -r .data.secret_id`
 
 # login
-tee goapp-secret-id-login.json <<EOF
+tee id-factory-secret-id-login.json <<EOF
 {
   "role_id": "${APPROLEID}",
   "secret_id": "${SECRET_ID}"
@@ -155,7 +148,7 @@ EOF
 
 curl \
     --request POST \
-    --data @goapp-secret-id-login.json \
+    --data @id-factory-secret-id-login.json \
     ${VAULT_ADDR}/v1/auth/approle/login 
 
 

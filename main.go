@@ -20,7 +20,7 @@ type vault struct {
 }
 
 type approle struct {
-    Name string
+    roleName string
 }
 
 var appHealth = "UNINITIALISED"
@@ -47,16 +47,17 @@ func initialiseme(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        wrappedToken, success := queryVault(vaultAddress, "/v1/sys/wrapping/unwrap", apiKey.Token, nil, "POST", false)
+        unwrappedTokenResponse, success := queryVault(vaultAddress, "/v1/sys/wrapping/unwrap", apiKey.Token, nil, "POST", false)
         if !success {
             appHealth = "UNWRAPTOKENFAIL"
             fmt.Fprintf(w, "Vault token unwrap failure\n")
             return
         }
         
-	    unwrappedToken = wrappedToken["auth"].(map[string]interface{})["client_token"].(string)
+	    unwrappedToken = unwrappedTokenResponse["auth"].(map[string]interface{})["client_token"].(string)
 		log.Println(unwrappedToken)
-        fmt.Fprintf(w, "Wrapped Token Received: %v", apiKey.Token)
+        fmt.Fprintf(w, "Wrapped Token Received: %v \n", apiKey.Token)
+        fmt.Fprintf(w, "UnWrapped Vault Provisioner Role Token Received: %v \n", unwrappedToken)
         appHealth = "INITIALISED"
     default:
         fmt.Fprintf(w, "Sorry, only POST methods are supported.\n")
@@ -78,10 +79,10 @@ func approlename(w http.ResponseWriter, r *http.Request) {
             var role approle
             err := decoder.Decode(&role)
             if err != nil {
-                fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleid\" : \"123456\" }'\nError : %v \n", err)
+                fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleName\" : \"VaultSecretIDFactory\" }'\nError : %v \n", err)
                 return
             }
-            secretidURL := "/v1/auth/approle/role/" + role.Name + "/secret-id"
+            secretidURL := "/v1/auth/approle/role/" + role.roleName + "/secret-id"
             wrappedSecretResponse, success := queryVault(vaultAddress, secretidURL, unwrappedToken, nil, "POST", true)
             if !success {
                 appHealth = "WRAPSECRETIDFAIL"
