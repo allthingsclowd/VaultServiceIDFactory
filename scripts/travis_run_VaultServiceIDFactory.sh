@@ -8,6 +8,8 @@ go build -o VaultServiceIDFactory main.go
 ./VaultServiceIDFactory &
 
 # Put new API Test Here
-
-exit 0
+curl -sSf http://localhost:8314/initialiseme > /dev/null
+curl -sSf http://localhost:8314/approlename > /dev/null
+curl -sSf http://localhost:8314/health > /dev/null
+# exit 0
 # The End

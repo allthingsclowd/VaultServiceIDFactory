@@ -44,20 +44,24 @@ func initialiseme(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&apiKey)
 		if err != nil {
             fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"token\" : \"123456\" }'\nError : %v \n", err)
+            return
         }
+
         wrappedToken, success := queryVault(vaultAddress, "/v1/sys/wrapping/unwrap", apiKey.Token, nil, "POST", false)
         if !success {
             appHealth = "UNWRAPTOKENFAIL"
             fmt.Fprintf(w, "Vault token unwrap failure\n")
             return
         }
-	    unwrappedToken = wrappedToken["data"].(map[string]interface{})["secret_id"].(string)
+        
+	    unwrappedToken = wrappedToken["auth"].(map[string]interface{})["client_token"].(string)
 		log.Println(unwrappedToken)
-        fmt.Fprintf(w, "Token Received: %v", apiKey.Token)
+        fmt.Fprintf(w, "Wrapped Token Received: %v", apiKey.Token)
         appHealth = "INITIALISED"
     default:
-        fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+        fmt.Fprintf(w, "Sorry, only POST methods are supported.\n")
     }
+    return
 }
 
 // UPON RECEIPT OF A VALID APPROLENAME IN A JSON POST RETURN A WRAPPED SECRETID
@@ -75,6 +79,7 @@ func approlename(w http.ResponseWriter, r *http.Request) {
             err := decoder.Decode(&role)
             if err != nil {
                 fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleid\" : \"123456\" }'\nError : %v \n", err)
+                return
             }
             secretidURL := "/v1/auth/approle/role/" + role.Name + "/secret-id"
             wrappedSecretResponse, success := queryVault(vaultAddress, secretidURL, unwrappedToken, nil, "POST", true)
@@ -89,9 +94,11 @@ func approlename(w http.ResponseWriter, r *http.Request) {
             appHealth = "TOKENDELIVERED"
         } else {
             fmt.Fprintf(w, "Please get a Vault Factory Service Administrator to initialise this Service.")
+            return
         }
     default:
         fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+        return
     }
 }
 
@@ -104,9 +111,11 @@ func health(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "GET":
 		log.Println(appHealth)
-		fmt.Fprintf(w, appHealth)
+        fmt.Fprintf(w, appHealth)
+        return
     default:
         fmt.Fprintf(w, "Sorry, only GET methods are supported.")
+        return
     }
 }
 
