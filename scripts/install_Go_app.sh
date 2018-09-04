@@ -16,7 +16,7 @@ setup_environment () {
     if [ -d /vagrant ]; then
     LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
     else
-    LOG="VaultServiceIDFactory_${HOSTNAME}.log"
+    LOG="VaultServiceIDFactory.log"
     fi
 
 
@@ -42,14 +42,6 @@ install_go_application () {
 }
 
 verify_go_application () {
-
-    # Put new API Test Here
-    curl -sSf http://localhost:8314/initialiseme
-    curl -sSf -X POST http://localhost:8314/initialiseme
-    curl -sSf http://localhost:8314/approlename
-    curl -sSf  -X POST http://localhost:8314/approlename
-    curl -sSf http://localhost:8314/health
-
 
     curl http://localhost:8314/health 
     # Initialise with Vault Token

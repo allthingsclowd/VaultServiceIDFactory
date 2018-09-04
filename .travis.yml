@@ -5,6 +5,7 @@ addons:
     packages:
     - lynx
     - jq
+    - curl
 go:
 - '1.10'
 before_script:
@@ -15,12 +16,15 @@ before_script:
 - bash scripts/install_consul.sh
 - bash scripts/install_vault.sh
 - bash scripts/vault_basic_role_config.sh
+- bash scripts/configure_app_role.sh
+- bash scripts/test_appRole.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- bash scripts/travis_run_VaultServiceIDFactory.sh
+#- bash scripts/travis_run_VaultServiceIDFactory.sh
+- bash scripts/install_Go_app.sh
 deploy:
   provider: releases
   api_key:
