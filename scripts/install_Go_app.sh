@@ -95,7 +95,7 @@ EOF
         --header "X-Vault-Token: ${APPTOKEN}" \
         ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
 
-    if [ "${RESULT}" != "You_have_successfully_accessed_a_secret_password" ];then
+    if [ "${RESULT}" != "BananasYou_have_successfully_accessed_a_secret_password" ];then
         echo "APPLICATION VERIFICATION FAILURE"
         exit 1
     fi
