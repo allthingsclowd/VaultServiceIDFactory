@@ -1,3 +1,6 @@
+// VaultServiceIDFactory
+// SIMPLE API SERVICE THAT UPON RECEIPT OF AN APPROLEID PROVIDES A SERVICEID
+// FACILITATES BOOTSTRAPPING OF APPLICATIONS
 package main
 
 import (
@@ -17,7 +20,7 @@ type vault struct {
 }
 
 type approle struct {
-    Name string
+    RoleName string
 }
 
 var appHealth = "UNINITIALISED"
@@ -27,6 +30,7 @@ var targetIP string
 var thisServer string
 var vaultAddress string
 
+// BOOTSTRAP THIS APPLICATION WITH A WRAPPED VAULT TOKEN
 func initialiseme(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/initialiseme" {
         http.Error(w, "404 not found.", http.StatusNotFound)
@@ -40,22 +44,28 @@ func initialiseme(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&apiKey)
 		if err != nil {
             fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"token\" : \"123456\" }'\nError : %v \n", err)
+            return
         }
-        wrappedToken, success := queryVault(vaultAddress, "/v1/sys/wrapping/unwrap", apiKey.Token, nil, "POST", false)
+
+        unwrappedTokenResponse, success := queryVault(vaultAddress, "/v1/sys/wrapping/unwrap", apiKey.Token, nil, "POST", false)
         if !success {
             appHealth = "UNWRAPTOKENFAIL"
             fmt.Fprintf(w, "Vault token unwrap failure\n")
             return
         }
-	    unwrappedToken = wrappedToken["data"].(map[string]interface{})["secret_id"].(string)
+        
+	    unwrappedToken = unwrappedTokenResponse["auth"].(map[string]interface{})["client_token"].(string)
 		log.Println(unwrappedToken)
-        fmt.Fprintf(w, "Token Received: %v", apiKey.Token)
+        fmt.Fprintf(w, "Wrapped Token Received: %v \n", apiKey.Token)
+        fmt.Fprintf(w, "UnWrapped Vault Provisioner Role Token Received: %v \n", unwrappedToken)
         appHealth = "INITIALISED"
     default:
-        fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+        fmt.Fprintf(w, "Sorry, only POST methods are supported.\n")
     }
+    return
 }
 
+// UPON RECEIPT OF A VALID APPROLENAME IN A JSON POST RETURN A WRAPPED SECRETID
 func approlename(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/approlename" {
         http.Error(w, "404 not found.", http.StatusNotFound)
@@ -64,14 +74,15 @@ func approlename(w http.ResponseWriter, r *http.Request) {
  
     switch r.Method {
     case "POST":
-        if appHealth == "INITIALISED" {
+        if appHealth == "INITIALISED" || appHealth == "TOKENDELIVERED" {
             decoder := json.NewDecoder(r.Body)
             var role approle
             err := decoder.Decode(&role)
             if err != nil {
-                fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleid\" : \"123456\" }'\nError : %v \n", err)
+                fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleName\" : \"VaultSecretIDFactory\" }'\nError : %v \n", err)
+                return
             }
-            secretidURL := "/v1/auth/approle/role/" + role.Name + "/secret-id"
+            secretidURL := "/v1/auth/approle/role/" + role.RoleName + "/secret-id"
             wrappedSecretResponse, success := queryVault(vaultAddress, secretidURL, unwrappedToken, nil, "POST", true)
             if !success {
                 appHealth = "WRAPSECRETIDFAIL"
@@ -84,9 +95,11 @@ func approlename(w http.ResponseWriter, r *http.Request) {
             appHealth = "TOKENDELIVERED"
         } else {
             fmt.Fprintf(w, "Please get a Vault Factory Service Administrator to initialise this Service.")
+            return
         }
     default:
         fmt.Fprintf(w, "Sorry, only POST methods are supported.")
+        return
     }
 }
 
@@ -99,17 +112,19 @@ func health(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "GET":
 		log.Println(appHealth)
-		fmt.Fprintf(w, appHealth)
+        fmt.Fprintf(w, appHealth)
+        return
     default:
         fmt.Fprintf(w, "Sorry, only GET methods are supported.")
+        return
     }
 }
 
 func main() {
 
-    portPtr := flag.Int("port", 8314, "Default's to port 8080. Use -port=nnnn to use listen on an alternate port.")
+    portPtr := flag.Int("port", 8314, "Default's to port 8314. Use -port=nnnn to use listen on an alternate port.")
     ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-    vaultAddressPtr := flag.String("vault", "http://192.168.2.11:8200", "Vault IP Address - defaults to 192.168.2.11")
+    vaultAddressPtr := flag.String("vault", "http://localhost:8200", "Vault IP Address - defaults to 192.168.2.11")
     vaultAddress = *vaultAddressPtr
     flag.Parse()
     
@@ -144,9 +159,19 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	fmt.Println("\nDebug Vars End")
 
 	apiCall := vaultAddress + url
-	bytesRepresentation, err := json.Marshal(data)
+    bytesRepresentation, err := json.Marshal(data)
+    if err != nil {
+        fmt.Println("Failed to query the Vault API \nError : ", err)
+        success = false
+        return result, success
+    }
 
     req, err := http.NewRequest(action, apiCall, bytes.NewBuffer(bytesRepresentation))
+    if err != nil {
+        fmt.Println("Failed to query the Vault API \nError : ", err)
+        success = false
+        return result, success
+    }
     req.Header.Set("X-Vault-Token", token)
     req.Header.Set("Content-Type", "application/json")
     if wrapped {
@@ -169,7 +194,7 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	json.NewDecoder(resp.Body).Decode(&result)
 
 	fmt.Println("\n\nresponse result: ",result)
-	fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+	// fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
 
 	return result, success
 }

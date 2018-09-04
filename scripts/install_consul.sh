@@ -17,7 +17,7 @@ if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
 
-PKG="wget unzip"
+PKG="wget unzip curl jq"
 which ${PKG} &>/dev/null || {
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
