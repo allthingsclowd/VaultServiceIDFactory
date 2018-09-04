@@ -31,7 +31,7 @@ install_go_application () {
     # sudo mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
     # sudo cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
     # cd $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
-    go get -t -v ./...
+    go get -t ./...
     go build -o VaultServiceIDFactory main.go
     chmod +x VaultServiceIDFactory
     killall VaultServiceIDFactory &>/dev/null
