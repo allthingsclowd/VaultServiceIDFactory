@@ -36,7 +36,7 @@ install_go_application () {
     chmod +x VaultServiceIDFactory
     killall VaultServiceIDFactory &>/dev/null
     sudo cp VaultServiceIDFactory /usr/local/bin/.
-    VaultServiceIDFactory &> ${LOG} &
+    VaultServiceIDFactory vault=${VAULT_ADDR} &> ${LOG} &
     sleep 5
 
 }
