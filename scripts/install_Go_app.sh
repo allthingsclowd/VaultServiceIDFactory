@@ -7,7 +7,7 @@ setup_environment () {
 
     IP=${LEADER_IP}
     if [ "${TRAVIS}" == "true" ]; then
-    IP=${IP:-127.0.0.1}
+        IP="127.0.0.1"
     fi
 
     export VAULT_ADDR=http://${IP}:8200
@@ -28,14 +28,14 @@ install_go_application () {
 
     export GOPATH=$HOME/gopath
     export PATH=$HOME/gopath/bin:$PATH
-    mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
-    cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
+    sudo mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
+    sudo cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
     cd $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
     go get -t -v ./...
     go build -o VaultServiceIDFactory main.go
     chmod +x VaultServiceIDFactory
     killall VaultServiceIDFactory &>/dev/null
-    cp VaultServiceIDFactory /usr/local/bin/.
+    sudo cp VaultServiceIDFactory /usr/local/bin/.
     VaultServiceIDFactory &> ${LOG} &
     sleep 5
 
@@ -43,22 +43,22 @@ install_go_application () {
 
 verify_go_application () {
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
     # Initialise with Vault Token
     WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
     curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
-    http://localhost:8314/initialiseme
+    http://${IP}:8314/initialiseme
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
 
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
-    http://localhost:8314/approlename | awk '/Token Received:/{print $NF}'`
+    http://${IP}:8314/approlename | awk '/Token Received:/{print $NF}'`
 
     SECRET_ID=`curl --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
         --request POST \
@@ -88,7 +88,7 @@ EOF
         ${VAULT_ADDR}/v1/kv/example_password | jq -r .
 
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
 
 }
 

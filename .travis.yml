@@ -24,7 +24,7 @@ script:
 - export LEADER_IP=127.0.0.1
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 #- bash scripts/travis_run_VaultServiceIDFactory.sh
-- bash scripts/install_Go_app.sh
+- sudo bash scripts/install_Go_app.sh
 deploy:
   provider: releases
   api_key:
