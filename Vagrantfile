@@ -24,6 +24,8 @@ Vagrant.configure("2") do |config|
         leader01.vm.provision "shell", path: "scripts/install_vault.sh", run: "always"
         leader01.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
         leader01.vm.provision "shell", path: "scripts/vault_basic_role_config.sh", run: "always"
+        leader01.vm.provision "shell", path: "scripts/configure_app_role.sh", run: "always"
+        leader01.vm.provision "shell", path: "scripts/test_appRole.sh", run: "always"
         leader01.vm.network "private_network", ip: ENV['LEADER_IP']
         leader01.vm.network "forwarded_port", guest: 8500, host: 8500
         leader01.vm.network "forwarded_port", guest: 8200, host: 8200

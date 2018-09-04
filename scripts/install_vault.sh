@@ -8,7 +8,7 @@ IP=${CIDR%%/24}
 if [ -d /vagrant ]; then
   LOG="/vagrant/logs/vault_${HOSTNAME}.log"
 else
-  LOG="consul.log"
+  LOG="vault.log"
 fi
 
 if [ "${TRAVIS}" == "true" ]; then

@@ -20,7 +20,7 @@ type vault struct {
 }
 
 type approle struct {
-    roleName string
+    RoleName string
 }
 
 var appHealth = "UNINITIALISED"
@@ -82,7 +82,7 @@ func approlename(w http.ResponseWriter, r *http.Request) {
                 fmt.Fprintf(w, "Invalid Data Received in Request Body.\n Format expected '{ \"roleName\" : \"VaultSecretIDFactory\" }'\nError : %v \n", err)
                 return
             }
-            secretidURL := "/v1/auth/approle/role/" + role.roleName + "/secret-id"
+            secretidURL := "/v1/auth/approle/role/" + role.RoleName + "/secret-id"
             wrappedSecretResponse, success := queryVault(vaultAddress, secretidURL, unwrappedToken, nil, "POST", true)
             if !success {
                 appHealth = "WRAPSECRETIDFAIL"
@@ -194,7 +194,7 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	json.NewDecoder(resp.Body).Decode(&result)
 
 	fmt.Println("\n\nresponse result: ",result)
-	fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
+	// fmt.Println("\n\nresponse result .auth:",result["auth"].(map[string]interface{})["client_token"])
 
 	return result, success
 }

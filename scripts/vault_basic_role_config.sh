@@ -10,6 +10,36 @@ if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
 
+if [ -d /vagrant ]; then
+  LOG="/vagrant/logs/vault_audit_${HOSTNAME}.log"
+else
+  LOG="vault_audit.log"
+fi
+
+# enable secret KV version 1
+VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+sudo VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
+
+# configure Audit Backend
+
+VAULT_AUDIT_LOG="${LOG}"
+
+tee audit-backend-file.json <<EOF
+{
+  "type": "file",
+  "options": {
+    "path": "${VAULT_AUDIT_LOG}"
+  }
+}
+EOF
+
+curl \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --request PUT \
+    --data @audit-backend-file.json \
+    ${VAULT_ADDR}/v1/sys/audit/file-audit
+
+
 
 # use root policy to create admin & provisioner policies
 # see https://www.hashicorp.com/resources/policies-vault
@@ -44,6 +74,12 @@ path "sys/policy/*"
 path "secret/*"
 {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+# List, create, update, and delete key/value secrets
+path "kv/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 # Manage and manage secret backends broadly across Vault.
@@ -100,6 +136,12 @@ path "secret/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+# List, create, update, and delete key/value secrets
+path "kv/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
 EOF
 
 # create provisioner policy
@@ -111,15 +153,15 @@ sudo echo -n ${WRAPPED_PROVISIONER_TOKEN} > /usr/local/bootstrap/.wrapped-provis
 
 sudo chmod ugo+r /usr/local/bootstrap/.wrapped-provisioner-token
 
-# revoke ROOT token now that admin token has been created
-ROOT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
-VAULT_ADDR="http://${IP}:8200" vault token revoke ${ROOT_TOKEN}
+# # revoke ROOT token now that admin token has been created
+# ROOT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
+# VAULT_ADDR="http://${IP}:8200" vault token revoke ${ROOT_TOKEN}
 
-# Verify root token revoked
-VAULT_ADDR="http://${IP}:8200" vault status
+# # Verify root token revoked
+# VAULT_ADDR="http://${IP}:8200" vault status
 
-# Set new admin vault token & verify
-export VAULT_TOKEN=${ADMIN_TOKEN}
+# # Set new admin vault token & verify
+# export VAULT_TOKEN=${ADMIN_TOKEN}
 VAULT_ADDR="http://${IP}:8200" vault status
 
 echo 'Finished Vault Role/Policy Configuration'
