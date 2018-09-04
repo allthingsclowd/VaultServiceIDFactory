@@ -18,7 +18,7 @@ fi
 
 # enable secret KV version 1
 VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
-sudo VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault secrets enable -version=1 kv
 
 # configure Audit Backend
 
@@ -38,8 +38,6 @@ curl \
     --request PUT \
     --data @audit-backend-file.json \
     ${VAULT_ADDR}/v1/sys/audit/file-audit
-
-
 
 # use root policy to create admin & provisioner policies
 # see https://www.hashicorp.com/resources/policies-vault
@@ -96,10 +94,10 @@ path "sys/health"
 EOF
 
 # create the admin policy in vault
-VAULT_ADDR="http://${IP}:8200" vault policy write admin admin_policy.hcl
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write admin admin_policy.hcl
 
 # create an admin token
-ADMIN_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=admin -field=token`
+ADMIN_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=admin -field=token`
 sudo echo -n ${ADMIN_TOKEN} > /usr/local/bootstrap/.admin-token
 
 sudo chmod ugo+r /usr/local/bootstrap/.admin-token
@@ -145,10 +143,10 @@ path "kv/*"
 EOF
 
 # create provisioner policy
-VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
+sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
 
 # create a wrapped provisioner token by adding -wrap-ttl=60m
-WRAPPED_PROVISIONER_TOKEN=`sudo VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
+WRAPPED_PROVISIONER_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
 sudo echo -n ${WRAPPED_PROVISIONER_TOKEN} > /usr/local/bootstrap/.wrapped-provisioner-token
 
 sudo chmod ugo+r /usr/local/bootstrap/.wrapped-provisioner-token
