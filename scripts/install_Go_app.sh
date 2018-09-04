@@ -60,6 +60,8 @@ verify_go_application () {
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
     http://localhost:8314/approlename
 
+    cat ${LOG}
+
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
