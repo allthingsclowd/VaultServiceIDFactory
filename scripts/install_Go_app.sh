@@ -91,10 +91,16 @@ EOF
 
     echo "Reading secret using newly acquired token"
 
-    curl \
+    RESULT=`curl \
         --header "X-Vault-Token: ${APPTOKEN}" \
-        ${VAULT_ADDR}/v1/kv/example_password | jq -r .
+        ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
 
+    if [ "${RESULT}" != "You_have_successfully_accessed_a_secret_password"];then
+        echo "APPLICATION VERIFICATION FAILURE"
+        exit 1
+    fi
+
+    echo "APPLICATION VERIFICATION SUCCESSFUL"
 
     curl http://localhost:8314/health 
 
