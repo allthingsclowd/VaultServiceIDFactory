@@ -55,17 +55,28 @@ verify_go_application () {
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
 
+    curl --header "Content-Type: application/json" \
+    --request POST \
+    --data "{\"RoleName\":\"${ROLENAME}\"}" \
+    http://localhost:8314/approlename
+
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
     http://localhost:8314/approlename | awk '/Token Received:/{print $NF}'`
 
+    echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
+
     SECRET_ID=`curl --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
         --request POST \
         ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
-
+    
+    echo "SECRET_ID : ${SECRET_ID}"
+    
     # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
     APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+
+    echo "APPROLEID : ${APPROLEID}"
 
     # login
     tee id-factory-secret-id-login.json <<EOF
