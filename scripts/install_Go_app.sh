@@ -43,22 +43,22 @@ install_go_application () {
 
 verify_go_application () {
 
-    curl http://${IP}:8314/health 
+    curl http://localhost:8314/health 
     # Initialise with Vault Token
     WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
     curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
-    http://${IP}:8314/initialiseme
+    http://localhost:8314/initialiseme
 
-    curl http://${IP}:8314/health 
+    curl http://localhost:8314/health 
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
 
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
-    http://${IP}:8314/approlename | awk '/Token Received:/{print $NF}'`
+    http://localhost:8314/approlename | awk '/Token Received:/{print $NF}'`
 
     SECRET_ID=`curl --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
         --request POST \
@@ -88,7 +88,7 @@ EOF
         ${VAULT_ADDR}/v1/kv/example_password | jq -r .
 
 
-    curl http://${IP}:8314/health 
+    curl http://localhost:8314/health 
 
 }
 
