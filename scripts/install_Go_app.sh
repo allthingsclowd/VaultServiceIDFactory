@@ -26,11 +26,11 @@ setup_environment () {
 
 install_go_application () {
 
-    export GOPATH=$HOME/gopath
-    export PATH=$HOME/gopath/bin:$PATH
-    sudo mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
-    sudo cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
-    cd $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
+    # export GOPATH=$HOME/gopath
+    # export PATH=$HOME/gopath/bin:$PATH
+    # sudo mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
+    # sudo cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
+    # cd $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
     go get -t -v ./...
     go build -o VaultServiceIDFactory main.go
     chmod +x VaultServiceIDFactory
