@@ -76,4 +76,7 @@ set_test_secret_data
 get_secret_id
 get_approle_id
 verify_approle_credentials
+get_secret_id
+get_approle_id
+verify_approle_credentials
 echo 'End Vault AppRole Test'

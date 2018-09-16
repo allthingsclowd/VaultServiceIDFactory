@@ -2,60 +2,57 @@
 
 setup_environment () {
 
-    set -x
+    
     source /usr/local/bootstrap/var.env
-
-    IP=${LEADER_IP}
+    
+    IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
+    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+    IP=${CIDR%%/24}
+    VAULT_IP=${LEADER_IP}
+    
     if [ "${TRAVIS}" == "true" ]; then
         IP="127.0.0.1"
+        VAULT_IP=${IP}
     fi
 
-    export VAULT_ADDR=http://${IP}:8200
+    export VAULT_ADDR=http://${VAULT_IP}:8200
     export VAULT_SKIP_VERIFY=true
 
     if [ -d /vagrant ]; then
-    LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
+        LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
     else
-    LOG="VaultServiceIDFactory.log"
+        LOG="${TRAVIS_HOME}/VaultServiceIDFactory.log"
     fi
-
-
-
 
 }
 
 install_go_application () {
-
-    # export GOPATH=$HOME/gopath
-    # export PATH=$HOME/gopath/bin:$PATH
-    # sudo mkdir -p $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
-    # sudo cp -r /usr/local/bootstrap/. $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory/
-    # cd $HOME/gopath/src/github.com/allthingsclowd/VaultServiceIDFactory
+    
+    pushd /usr/local/bootstrap
     go get -t ./...
     go build -o VaultServiceIDFactory main.go
-    chmod +x VaultServiceIDFactory
     killall VaultServiceIDFactory &>/dev/null
     sudo cp VaultServiceIDFactory /usr/local/bin/.
-    VaultServiceIDFactory vault=${VAULT_ADDR} &> ${LOG} &
+    sudo chmod +x /usr/local/bin/VaultServiceIDFactory
+    sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
+    popd
     sleep 5
 
 }
 
 verify_go_application () {
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
     # Initialise with Vault Token
     WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
     curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
-    http://localhost:8314/initialiseme
+    http://${IP}:8314/initialiseme
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
-
-    cat ${LOG}
 
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
@@ -88,7 +85,8 @@ EOF
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
-
+    cat ${LOG}
+    
     echo "Reading secret using newly acquired token"
 
     RESULT=`curl \
@@ -102,10 +100,11 @@ EOF
 
     echo "APPLICATION VERIFICATION SUCCESSFUL"
 
-    curl http://localhost:8314/health 
+    curl http://${IP}:8314/health 
 
 }
 
+set -x
 echo 'Start of Application Installation and Test'
 setup_environment
 install_go_application

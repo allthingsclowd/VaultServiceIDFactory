@@ -72,7 +72,7 @@ if [ "${APPROLEID}" == null ]; then
         "role_name": "id-factory",
         "bind_secret_id": true,
         "secret_id_ttl": "24h",
-        "secret_id_num_uses": "1",
+        "secret_id_num_uses": "0",
         "token_ttl": "10m",
         "token_max_ttl": "30m",
         "period": 0,
