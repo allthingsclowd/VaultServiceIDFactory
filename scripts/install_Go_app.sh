@@ -54,8 +54,6 @@ verify_go_application () {
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
 
-    cat ${LOG}
-
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
@@ -87,7 +85,8 @@ EOF
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
-
+    cat ${LOG}
+    
     echo "Reading secret using newly acquired token"
 
     RESULT=`curl \
