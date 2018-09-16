@@ -21,7 +21,7 @@ setup_environment () {
     if [ -d /vagrant ]; then
         LOG="/vagrant/logs/VaultServiceIDFactory_${HOSTNAME}.log"
     else
-        LOG="~/VaultServiceIDFactory.log"
+        LOG="${TRAVIS_HOME}/VaultServiceIDFactory.log"
     fi
 
 }
