@@ -2,15 +2,19 @@
 
 setup_environment () {
 
-    set -x
+    
     source /usr/local/bootstrap/var.env
-
-    IP=${LEADER_IP}
+    
+    IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
+    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+    IP=${CIDR%%/24}
+    VAULT_IP=${LEADER_IP}
+    
     if [ "${TRAVIS}" == "true" ]; then
         IP="127.0.0.1"
     fi
 
-    export VAULT_ADDR=http://${IP}:8200
+    export VAULT_ADDR=http://${VAULT_IP}:8200
     export VAULT_SKIP_VERIFY=true
 
     if [ -d /vagrant ]; then
@@ -22,13 +26,15 @@ setup_environment () {
 }
 
 install_go_application () {
-
+    
+    pushd /usr/local/bootstrap
     go get -t ./...
     go build -o VaultServiceIDFactory main.go
     killall VaultServiceIDFactory &>/dev/null
     sudo cp VaultServiceIDFactory /usr/local/bin/.
     sudo chmod +x /usr/local/bin/VaultServiceIDFactory
     sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
+    popd
     sleep 5
 
 }
@@ -98,6 +104,7 @@ EOF
 
 }
 
+set -x
 echo 'Start of Application Installation and Test'
 setup_environment
 install_go_application
