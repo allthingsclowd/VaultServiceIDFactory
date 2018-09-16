@@ -12,6 +12,7 @@ setup_environment () {
     
     if [ "${TRAVIS}" == "true" ]; then
         IP="127.0.0.1"
+        VAULT_IP=${IP}
     fi
 
     export VAULT_ADDR=http://${VAULT_IP}:8200
