@@ -30,7 +30,7 @@ deploy:
     secure: C0KYLkyOUIiA8I1n6aer2HMscY18LMkqYsA6E5EHpx6CcCNUzuGVr594Bjp+LyFmR3uqNYTppR4hdJheNqIF+mg/subSPNAJgWH4eV7D1HJEgLSTZljEf1T4/7Bo5/nqmAJd0TC0CxRGk9+GH6PxMrFmppndLxt9A17YaKAYtjoF6UbepBtEFUh7+D0XV8FGVnlb5RR5NEJo7f6wZH/AG4c+tT/xVk68j+DU+TNisnDYsOCMycT6q6eGMSESfCuY6FBM9xdocvu3KvRSo/9/5JNBnmuKFT100T61u60M46nr8lnEk4OAS/u8dDTBt4ierZonQTN4msFFRTAxfuyeUjF1uttY6J381cDyvdfqeNfMD2/liHLzF/x0+LW4hF88ewRbgDld16SfKnmkkYWMno5efrToJq3t3N3xRAyu9P5mISXJQ/y+fUIsehZ/yu6YC0ojf+IVdW6EVbAG+jsp8TK1zWWueHGSqx20Z3/kDR15TlZ3YncItu5pDO8WBOEsPpQrKSGKb/jKdAwTSrtajUjxoWrbVSNycFhY9UuClnPjEttz3XtQU/Kdbeva/QnVfETM407ia/mJ1Y+qOVildKVR4BuCUCLFVvvmHv9m8HsXg1OlDr7cH+dD820X0lRAlzHaTXwUmtqZlfInWvgO6hKLA9lTO/YhVdLy0msljh8=
   file_glob: true
   file: 
-    - "./VaultServiceIDFactory"
+    - "/usr/local/bin/VaultServiceIDFactory"
   skip_cleanup: true
   on:
     repo: allthingsclowd/VaultServiceIDFactory
