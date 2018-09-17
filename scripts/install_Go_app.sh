@@ -57,7 +57,7 @@ verify_go_application () {
     WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
-    http://localhost:8314/approlename | awk '/Token Received:/{print $NF}'`
+    http://localhost:8314/approlename`
 
     echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
 
