@@ -91,12 +91,12 @@ func approlename(w http.ResponseWriter, r *http.Request) {
             }
             wrappedSecretID := wrappedSecretResponse["wrap_info"].(map[string]interface{})["token"].(string)
             log.Println(wrappedSecretID)
-            fmt.Fprintf(w, "Token Received: %v", wrappedSecretID)
+            fmt.Fprintf(w,wrappedSecretID)
             appHealth = "TOKENDELIVERED"
         } else {
             fmt.Fprintf(w, "Please get a Vault Factory Service Administrator to initialise this Service.")
-            return
         }
+        return
     default:
         fmt.Fprintf(w, "Sorry, only POST methods are supported.")
         return
