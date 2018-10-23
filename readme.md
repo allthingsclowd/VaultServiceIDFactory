@@ -36,6 +36,10 @@ It has the following 3 API endpoints -
  TOKENDELIVERED - a wrapped secret-id has been returned to an api request
  WRAPSECRETIDFAIL - failed to generate a wrapped secret-id
 ```
+## Application Bootstrapping AppRole Workflow
+
+How does the application get it's Vault token?
+![image](https://user-images.githubusercontent.com/9472095/47363260-3bd19c80-d6ce-11e8-9720-72c8e400405d.png)
 
 ## TODO
 
