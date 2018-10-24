@@ -96,7 +96,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   if [ "${TRAVIS}" == "true" ]; then
     create_service_user vault
     sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
-    sudo -u vault /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
+    sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
     sleep 3
     cat ${LOG}
   else
