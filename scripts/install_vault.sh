@@ -47,7 +47,7 @@ EOF
 create_service_user () {
   
   if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
-    echo "Creating ${1} user to run the consul service"
+    echo "Creating ${1} user to run the ${1} service"
     sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
     sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
     sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
@@ -95,7 +95,10 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   #start vault
   if [ "${TRAVIS}" == "true" ]; then
     create_service_user vault
-    sudo -u vault /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl &> ${LOG} &
+    sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+    sudo -u vault /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config-dir=/etc/vault.d &> ${LOG} &
+    sleep 3
+    cat ${LOG}
   else
     create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
     sudo systemctl start vault
