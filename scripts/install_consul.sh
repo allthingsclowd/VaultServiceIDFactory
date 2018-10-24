@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 create_service () {
-  [ -f /etc/systemd/system/${1}.service ] || sudo tee /etc/systemd/system/${1}.service <<EOF
+  if [ ! -f /etc/systemd/system/${1}.service ]; then
+    
+    create_service_user ${1}
+    
+    sudo tee /etc/systemd/system/${1}.service <<EOF
 ### BEGIN INIT INFO
 # Provides:          ${1}
 # Required-Start:    $local_fs $remote_fs
@@ -36,15 +40,18 @@ WantedBy=multi-user.target
 EOF
 
   sudo systemctl daemon-reload
+
+  fi
+
 }
 
-create_consul_service_user () {
+create_service_user () {
   
-  if ! grep consul /etc/passwd >/dev/null 2>&1; then
-    echo "Creating consul user to run the consul service"
-    sudo useradd --system --home /etc/consul.d --shell /bin/false consul
-    sudo mkdir --parents /opt/consul /usr/local/consul /etc/consul.d
-    sudo chown --recursive consul:consul /opt/consul /etc/consul.d /usr/local/consul
+  if ! grep ${1} /etc/passwd >/dev/null 2>&1; then
+    echo "Creating ${1} user to run the consul service"
+    sudo useradd --system --home /etc/${1}.d --shell /bin/false ${1}
+    sudo mkdir --parents /opt/${1} /usr/local/${1} /etc/${1}.d
+    sudo chown --recursive ${1}:${1} /opt/${1} /etc/${1}.d /usr/local/${1}
   fi
 
 }
@@ -159,5 +166,4 @@ install_consul () {
 
 setup_environment
 install_prerequisite_binaries
-#create_consul_service_user
 install_consul
