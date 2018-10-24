@@ -161,11 +161,15 @@ install_go_application () {
     sudo cp VaultServiceIDFactory /usr/local/bin/.
     popd
     sudo chmod +x /usr/local/bin/VaultServiceIDFactory
-    create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
-    sudo systemctl start factory
-    sudo systemctl status factory
+    if [ "${TRAVIS}" == "true" ]; then
+        create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
+        sudo systemctl start factory
+        sudo systemctl status factory
+        register_secret_id_service_with_consul
+    else
+        sudo /usr/local/bin/VaultServiceIDFactory -vault="${VAULT_ADDR}" &> ${LOG} &
+    fi
 
-    register_secret_id_service_with_consul
 
     # start connect application proxy
     start_app_proxy_service approle "App Role Vailt Secret ID Factory"
@@ -174,71 +178,140 @@ install_go_application () {
 }
 
 verify_go_application () {
-    # start client client proxy
-    start_client_proxy_service democlientproxy "Demo consul connect client proxy" "approle" "9991"
 
-    curl http://${IP}:8314/health 
-    # converting for consul connect - point to loopback
-    IP=127.0.0.1
-    curl -s http://${IP}:9991/health 
-    # Initialise with Vault Token
-    WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
-    curl -s --header "Content-Type: application/json" \
-    --request POST \
-    --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
-    http://${IP}:8314/initialiseme
+    if [ "${TRAVIS}" == "true" ]; then
 
-    curl -s http://${IP}:9991/health 
-    # Get a secret ID and test access to the Vault KV Secret
-    ROLENAME="id-factory"
+        curl http://${IP}:8314/health 
 
-    WRAPPED_SECRET_ID=`curl -s --header "Content-Type: application/json" \
-    --request POST \
-    --data "{\"RoleName\":\"${ROLENAME}\"}" \
-    http://127.0.0.1:9991/approlename`
-
-    echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
-
-    SECRET_ID=`curl -s --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
+        IP=127.0.0.1
+        curl -s http://${IP}:8314/health 
+        # Initialise with Vault Token
+        WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+        curl -s --header "Content-Type: application/json" \
         --request POST \
-        ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
-    
-    echo "SECRET_ID : ${SECRET_ID}"
-    
-    # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
-    APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+        --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
+        http://${IP}:8314/initialiseme
 
-    echo "APPROLEID : ${APPROLEID}"
+        curl -s http://${IP}:8314/health 
+        # Get a secret ID and test access to the Vault KV Secret
+        ROLENAME="id-factory"
 
-    # login
-    tee id-factory-secret-id-login.json <<EOF
-    {
-    "role_id": "${APPROLEID}",
-    "secret_id": "${SECRET_ID}"
-    }
+        WRAPPED_SECRET_ID=`curl -s --header "Content-Type: application/json" \
+        --request POST \
+        --data "{\"RoleName\":\"${ROLENAME}\"}" \
+        http://127.0.0.1:8314/approlename`
+
+        echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
+
+        SECRET_ID=`curl -s --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
+            --request POST \
+            ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
+        
+        echo "SECRET_ID : ${SECRET_ID}"
+        
+        # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
+        APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+
+        echo "APPROLEID : ${APPROLEID}"
+
+        # login
+        tee id-factory-secret-id-login.json <<EOF
+        {
+        "role_id": "${APPROLEID}",
+        "secret_id": "${SECRET_ID}"
+        }
 EOF
 
-    APPTOKEN=`curl -s \
+        APPTOKEN=`curl -s \
+            --request POST \
+            --data @id-factory-secret-id-login.json \
+            ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
+
+        cat ${LOG}
+        
+        echo "Reading secret using newly acquired token"
+
+        RESULT=`curl -s \
+            --header "X-Vault-Token: ${APPTOKEN}" \
+            ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
+
+        if [ "${RESULT}" != "You_have_successfully_accessed_a_secret_password" ];then
+            echo "APPLICATION VERIFICATION FAILURE"
+            exit 1
+        fi
+
+        echo "APPLICATION VERIFICATION SUCCESSFUL"
+
+        curl -s http://${IP}:8314/health 
+    else
+        # start client client proxy
+        start_client_proxy_service democlientproxy "Demo consul connect client proxy" "approle" "9991"
+
+        curl http://${IP}:8314/health 
+        # converting for consul connect - point to loopback
+        IP=127.0.0.1
+        curl -s http://${IP}:9991/health 
+        # Initialise with Vault Token
+        WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
+        curl -s --header "Content-Type: application/json" \
         --request POST \
-        --data @id-factory-secret-id-login.json \
-        ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
+        --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
+        http://${IP}:8314/initialiseme
 
-    cat ${LOG}
-    
-    echo "Reading secret using newly acquired token"
+        curl -s http://${IP}:9991/health 
+        # Get a secret ID and test access to the Vault KV Secret
+        ROLENAME="id-factory"
 
-    RESULT=`curl -s \
-        --header "X-Vault-Token: ${APPTOKEN}" \
-        ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
+        WRAPPED_SECRET_ID=`curl -s --header "Content-Type: application/json" \
+        --request POST \
+        --data "{\"RoleName\":\"${ROLENAME}\"}" \
+        http://127.0.0.1:9991/approlename`
 
-    if [ "${RESULT}" != "You_have_successfully_accessed_a_secret_password" ];then
-        echo "APPLICATION VERIFICATION FAILURE"
-        exit 1
+        echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
+
+        SECRET_ID=`curl -s --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
+            --request POST \
+            ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
+        
+        echo "SECRET_ID : ${SECRET_ID}"
+        
+        # retrieve the appRole-id from the approle - /usr/local/bootstrap/.appRoleID
+        APPROLEID=`cat /usr/local/bootstrap/.appRoleID`
+
+        echo "APPROLEID : ${APPROLEID}"
+
+        # login
+        tee id-factory-secret-id-login.json <<EOF
+        {
+        "role_id": "${APPROLEID}",
+        "secret_id": "${SECRET_ID}"
+        }
+EOF
+
+        APPTOKEN=`curl -s \
+            --request POST \
+            --data @id-factory-secret-id-login.json \
+            ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
+
+        cat ${LOG}
+        
+        echo "Reading secret using newly acquired token"
+
+        RESULT=`curl -s \
+            --header "X-Vault-Token: ${APPTOKEN}" \
+            ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
+
+        if [ "${RESULT}" != "You_have_successfully_accessed_a_secret_password" ];then
+            echo "APPLICATION VERIFICATION FAILURE"
+            exit 1
+        fi
+
+        echo "APPLICATION VERIFICATION SUCCESSFUL"
+
+        curl -s http://${IP}:9991/health 
     fi
 
-    echo "APPLICATION VERIFICATION SUCCESSFUL"
 
-    curl -s http://${IP}:9991/health 
 
 }
 
