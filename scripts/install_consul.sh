@@ -17,7 +17,7 @@ create_service () {
 ### END INIT INFO
 
 [Unit]
-Description=Consul server agent
+Description=${2}
 Requires=network-online.target
 After=network-online.target
 
