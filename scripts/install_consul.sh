@@ -1,4 +1,43 @@
 #!/usr/bin/env bash
+
+create_service () {
+  [ -f /etc/systemd/system/${1}.service ] || sudo tee /etc/systemd/system/${1}.service <<EOF
+### BEGIN INIT INFO
+# Provides:          ${1}
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: ${1} agent
+# Description:       ${2}
+### END INIT INFO
+
+[Unit]
+Description=Consul server agent
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=${1}
+Group=${1}
+PIDFile=/var/run/${1}/${1}.pid
+PermissionsStartOnly=true
+ExecStartPre=-/bin/mkdir -p /var/run/${1}
+ExecStartPre=/bin/chown -R ${1}:${1} /var/run/${1}
+ExecStart=${3}
+ExecReload=/bin/kill -HUP ${MAINPID}
+KillMode=process
+KillSignal=SIGTERM
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  sudo systemctl daemon-reload
+}
+
 create_consul_service_user () {
   
   if ! grep consul /etc/passwd >/dev/null 2>&1; then
@@ -87,9 +126,12 @@ install_consul () {
     fi
 
     /usr/local/bin/consul members 2>/dev/null || {
+        create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
-        sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
-      
+        # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+        sudo systemctl start consul
+
+        sudo systemctl status consul
       sleep 5
       # upload vars to consul kv
       echo "Quick test of the Consul KV store - upload the var.env parameters"
@@ -104,7 +146,10 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
-      sudo -u consul /usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP} >${LOG} &
+      create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
+      sudo systemctl start consul
+
+      sudo systemctl status consul
       sleep 10
     }
   fi
@@ -114,5 +159,5 @@ install_consul () {
 
 setup_environment
 install_prerequisite_binaries
-create_consul_service_user
+#create_consul_service_user
 install_consul

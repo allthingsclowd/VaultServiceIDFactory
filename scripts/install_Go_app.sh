@@ -42,26 +42,26 @@ install_go_application () {
 
 verify_go_application () {
 
-    curl http://${IP}:8314/health 
+    curl -s http://${IP}:8314/health 
     # Initialise with Vault Token
     WRAPPED_VAULT_TOKEN=`cat /usr/local/bootstrap/.wrapped-provisioner-token`
-    curl --header "Content-Type: application/json" \
+    curl -s --header "Content-Type: application/json" \
     --request POST \
     --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
     http://${IP}:8314/initialiseme
 
-    curl http://${IP}:8314/health 
+    curl -s http://${IP}:8314/health 
     # Get a secret ID and test access to the Vault KV Secret
     ROLENAME="id-factory"
 
-    WRAPPED_SECRET_ID=`curl --header "Content-Type: application/json" \
+    WRAPPED_SECRET_ID=`curl -s --header "Content-Type: application/json" \
     --request POST \
     --data "{\"RoleName\":\"${ROLENAME}\"}" \
     http://localhost:8314/approlename`
 
     echo "WRAPPED_SECRET_ID : ${WRAPPED_SECRET_ID}"
 
-    SECRET_ID=`curl --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
+    SECRET_ID=`curl -s --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
         --request POST \
         ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
     
@@ -80,7 +80,7 @@ verify_go_application () {
     }
 EOF
 
-    APPTOKEN=`curl \
+    APPTOKEN=`curl -s \
         --request POST \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
@@ -89,7 +89,7 @@ EOF
     
     echo "Reading secret using newly acquired token"
 
-    RESULT=`curl \
+    RESULT=`curl -s \
         --header "X-Vault-Token: ${APPTOKEN}" \
         ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
 
@@ -100,7 +100,7 @@ EOF
 
     echo "APPLICATION VERIFICATION SUCCESSFUL"
 
-    curl http://${IP}:8314/health 
+    curl -s http://${IP}:8314/health 
 
 }
 

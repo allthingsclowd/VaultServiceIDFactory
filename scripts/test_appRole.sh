@@ -22,7 +22,7 @@ setup_environment () {
 get_approle_id () {
     
     # retrieve the appRole-id from the approle
-    APPROLEID=`curl  \
+    APPROLEID=`curl -s  \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
@@ -40,7 +40,7 @@ set_test_secret_data () {
 get_secret_id () {
 
     # Generate a new secret-id
-    SECRET_ID=`curl \
+    SECRET_ID=`curl -s \
         --location \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
@@ -58,7 +58,7 @@ verify_approle_credentials () {
     }
 EOF
 
-    APPTOKEN=`curl \
+    APPTOKEN=`curl -s \
         --request POST \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`

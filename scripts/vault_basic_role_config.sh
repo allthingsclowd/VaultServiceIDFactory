@@ -33,7 +33,7 @@ tee audit-backend-file.json <<EOF
 }
 EOF
 
-curl \
+curl -s \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
     --data @audit-backend-file.json \

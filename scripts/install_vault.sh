@@ -18,7 +18,7 @@ fi
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
     [ -f vault_0.11.1_linux_amd64.zip ] || {
-        sudo wget https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip
+        sudo wget -q https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip
     }
     sudo unzip vault_0.11.1_linux_amd64.zip
     sudo chmod +x vault
@@ -37,7 +37,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
   #start vault
-  sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.hcl &> ${LOG} &
+  sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl &> ${LOG} &
   echo vault started
   sleep 3 
   

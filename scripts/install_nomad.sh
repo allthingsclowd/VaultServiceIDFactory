@@ -20,7 +20,7 @@ which wget unzip &>/dev/null || {
 
 which nomad &>/dev/null || {
   pushd /usr/local/bin
-  wget https://releases.hashicorp.com/nomad/0.8.4/nomad_0.8.4_linux_amd64.zip
+  wget -q https://releases.hashicorp.com/nomad/0.8.4/nomad_0.8.4_linux_amd64.zip
   unzip nomad_0.8.4_linux_amd64.zip
   chmod +x nomad
   popd
@@ -28,7 +28,7 @@ which nomad &>/dev/null || {
 
 which http-echo &>/dev/null || {
   pushd /usr/local/bin
-  wget https://github.com/hashicorp/http-echo/releases/download/v0.2.3/http-echo_0.2.3_linux_amd64.zip
+  wget -q https://github.com/hashicorp/http-echo/releases/download/v0.2.3/http-echo_0.2.3_linux_amd64.zip
   unzip http-echo_0.2.3_linux_amd64.zip
   chmod +x http-echo
   popd
