@@ -26,7 +26,7 @@ tee approle.json <<EOF
 EOF
 
 # Create the approle backend
-curl \
+curl -s \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
@@ -41,7 +41,7 @@ tee id-factory-secret-read.json <<EOF
 EOF
 
 # Write the policy
-curl \
+curl -s \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
@@ -51,7 +51,7 @@ curl \
 ##--------------------------------------------------------------------
 
 # List ACL policies
-curl \
+curl -s \
     --location \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request LIST \
@@ -61,7 +61,7 @@ curl \
 
 
 # Check if AppRole Exists
-APPROLEID=`curl  \
+APPROLEID=`curl -s \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
