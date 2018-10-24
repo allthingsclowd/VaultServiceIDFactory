@@ -161,7 +161,7 @@ install_go_application () {
     sudo cp VaultServiceIDFactory /usr/local/bin/.
     popd
     sudo chmod +x /usr/local/bin/VaultServiceIDFactory
-    if [ "${TRAVIS}" == "true" ]; then
+    if [ ! "${TRAVIS}" == "true" ]; then
         create_service factory "SecretID Factory Service" "/usr/local/bin/VaultServiceIDFactory -ip=127.0.0.1 -vault=\"${VAULT_ADDR}\""
         sudo systemctl start factory
         sudo systemctl status factory
