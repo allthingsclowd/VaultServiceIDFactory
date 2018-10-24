@@ -118,27 +118,16 @@ install_consul () {
   if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
     echo "Starting a Consul Server"
 
-    if [ "${TRAVIS}" == "true" ]; then
-      COUNTER=0
-      HOSTURL="http://${IP}:808${COUNTER}/health"
-      sudo cp /usr/local/bootstrap/conf/consul.d/redis.json /etc/consul.d/redis.json
-      CONSUL_SCRIPTS="scripts"
-      # ensure all scripts are executable for consul health checks
-      pushd ${CONSUL_SCRIPTS}
-      for file in `ls`;
-        do
-          sudo chmod +x $file
-        done
-      popd
-    fi
-
     /usr/local/bin/consul members 2>/dev/null || {
+      if [ "${TRAVIS}" == "true" ]; then
+        sudo /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
+      else
         create_service consul "HashiCorp Consul Server SD & KV Service" "/usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1"
         sudo -u consul cp -r /usr/local/bootstrap/conf/consul.d/* /etc/consul.d/.
         # sudo -u consul /usr/local/bin/consul agent -server -log-level=debug -ui -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -bootstrap-expect=1 >${LOG} &
         sudo systemctl start consul
-
         sudo systemctl status consul
+      fi
       sleep 5
       # upload vars to consul kv
       echo "Quick test of the Consul KV store - upload the var.env parameters"
@@ -153,11 +142,10 @@ install_consul () {
   else
     echo "Starting a Consul Agent"
     /usr/local/bin/consul members 2>/dev/null || {
-      create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
-      sudo systemctl start consul
-
-      sudo systemctl status consul
-      sleep 10
+        create_service consul "HashiCorp Consul Agent Service"  "/usr/local/bin/consul agent -log-level=debug -client=0.0.0.0 -bind=${IP} ${AGENT_CONFIG} -data-dir=/usr/local/consul -join=${LEADER_IP}"
+        sudo systemctl start consul
+        sudo systemctl status consul
+        sleep 10
     }
   fi
 
