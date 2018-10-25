@@ -256,7 +256,7 @@ EOF
         curl -s --header "Content-Type: application/json" \
         --request POST \
         --data "{\"token\":\"${WRAPPED_VAULT_TOKEN}\"}" \
-        http://${IP}:8314/initialiseme
+        http://${IP}:9991/initialiseme
 
         curl -s http://${IP}:9991/health 
         # Get a secret ID and test access to the Vault KV Secret
