@@ -31,15 +31,20 @@ Vagrant.configure("2") do |config|
         leader01.vm.network "forwarded_port", guest: 8200, host: 8200
     end
 
-    (1..1).each do |i|
-        config.vm.define "godev0#{i}" do |devsvr|
-            devsvr.vm.hostname = "godev0#{i}"
-            devsvr.vm.network "private_network", ip: "192.168.2.#{100+i*10}"
-            devsvr.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
-            devsvr.vm.provision "shell", path: "scripts/install_go_app.sh"
-            devsvr.vm.network "forwarded_port", guest: 8314, host: 8314
-        end
+    config.vm.define "factory01" do |devsvr|
+        devsvr.vm.hostname = "factory01"
+        devsvr.vm.network "private_network", ip: "192.168.2.10"
+        devsvr.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
+        devsvr.vm.provision "shell", path: "scripts/install_factory_service.sh"
+        devsvr.vm.network "forwarded_port", guest: 8314, host: 8314
     end
+
+    config.vm.define "testclient01" do |clientsvr|
+        clientsvr.vm.hostname = "testclient01"
+        clientsvr.vm.network "private_network", ip: "192.168.2.9"
+        clientsvr.vm.provision "shell", path: "scripts/verify_factory_service.sh"
+    end
+    
 
 
 end

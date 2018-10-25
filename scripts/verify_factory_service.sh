@@ -316,9 +316,7 @@ EOF
 }
 
 set -x
-echo 'Start of Application Installation and Test'
+echo 'Start of Factory Service Initialisation and Test'
 setup_environment
-install_go_application
 verify_go_application
-echo 'End of Application Installation and Test'
-
+echo 'End of Factory Service Initialisation and Test'
