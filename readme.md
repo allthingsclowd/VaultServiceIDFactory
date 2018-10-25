@@ -2,9 +2,13 @@
 
 # Vault Service ID Factory
 
-## A Service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
+## Solving Secret Zero or Application Boot strapping
 
-This will be used as the broker between vault and applications to bootstrap the secret-id delivery process.
+![913ee4e2-b01c-4749-8daa-f3ec5f8e5203](https://user-images.githubusercontent.com/9472095/43364036-20dbed52-930a-11e8-9e93-6de1290108b6.png)
+
+## An example service that generates a wrapped secret-id upon receipt of an approle name
+
+This service will be used as the broker between vault and applications to bootstrap the secret-id delivery process.
 
 The service defaults to port 8314.
 
