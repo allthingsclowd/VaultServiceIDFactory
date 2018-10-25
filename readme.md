@@ -44,7 +44,7 @@ How does the application get it's Vault token?
 
 ## Consul Connect Addition
 
-![image](https://user-images.githubusercontent.com/9472095/47509126-52622a00-d86d-11e8-95f7-9da89fd2500c.png)
+![image](https://user-images.githubusercontent.com/9472095/47515764-9bb97600-d87b-11e8-90a4-990ca1a19bce.png)
 
 ## TODO
 
