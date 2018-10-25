@@ -41,17 +41,22 @@ It has the following 3 API endpoints -
 How does the application get it's Vault token?
 ![image](https://user-images.githubusercontent.com/9472095/47363260-3bd19c80-d6ce-11e8-9720-72c8e400405d.png)
 
+
+## Consul Connect Addition
+
+![image](https://user-images.githubusercontent.com/9472095/47509126-52622a00-d86d-11e8-95f7-9da89fd2500c.png)
+
 ## TODO
 
 ### New Features
-- create consul tests
-- add diagram
 
 
 ### Refactor
+- create consul connect tests
 
 
 ## Done
 __Secret-ID Factory__
 - Build a new service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
 - Build this in a separate repository using a similar CI/CD pipeline mentality
+- Added Consul Connect to the Service

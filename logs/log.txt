@@ -1,1 +1,3 @@
 force directory creation
+/usr/local/bin/consul connect proxy -service ${1} -upstream ${3}:${4}
+/usr/local/bin/consul connect proxy -service democlientproxy -upstream approle:9991

@@ -6,7 +6,7 @@ register_secret_id_service_with_consul () {
 
     # configure web service definition
     sudo tee /etc/consul.d/secretid_service.json <<EOF
-        {
+    {
       "service": {
         "name": "approle",
         "port": 8314,
