@@ -73,10 +73,10 @@ fi
 
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
-    [ -f vault_0.11.1_linux_amd64.zip ] || {
-        sudo wget -q https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip
+    [ -f vault_1.0.0-beta1_linux_amd64.zip ] || {
+        sudo wget -q https://releases.hashicorp.com/vault/1.0.0-beta1/vault_1.0.0-beta1_linux_amd64.zip
     }
-    sudo unzip vault_0.11.1_linux_amd64.zip
+    sudo unzip vault_1.0.0-beta1_linux_amd64.zip
     sudo chmod +x vault
     popd
 }
