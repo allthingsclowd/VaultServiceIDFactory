@@ -23,7 +23,8 @@ script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
-- bash scripts/install_Go_app.sh
+- bash scripts/install_factory_service.sh
+- bash scripts/verify_factory_service.sh
 deploy:
   provider: releases
   api_key:

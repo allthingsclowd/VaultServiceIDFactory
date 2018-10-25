@@ -6,7 +6,7 @@ register_secret_id_service_with_consul () {
 
     # configure web service definition
     sudo tee /etc/consul.d/secretid_service.json <<EOF
-        {
+    {
       "service": {
         "name": "approle",
         "port": 8314,
@@ -175,6 +175,8 @@ install_go_application () {
     start_app_proxy_service approle "App Role Vailt Secret ID Factory"
     sleep 5
 
+    curl http://127.0.0.1:8314/health 
+
 }
 
 verify_go_application () {
@@ -316,9 +318,9 @@ EOF
 }
 
 set -x
-echo 'Start of Application Installation and Test'
+echo 'Start of Factory Service Installation'
 setup_environment
 install_go_application
-verify_go_application
-echo 'End of Application Installation and Test'
+#verify_go_application
+echo 'End of Factory Service Installation'
 
