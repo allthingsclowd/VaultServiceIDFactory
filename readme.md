@@ -64,7 +64,7 @@ How does the application get it's Vault token?
 
 
 ### Refactor
-- create consul connect tests
+
 
 
 ## Done
@@ -72,3 +72,4 @@ __Secret-ID Factory__
 - Build a new service (Secret-ID Factory) that generates a wrapped secret-id upon receipt of an app-role - (api only)
 - Build this in a separate repository using a similar CI/CD pipeline mentality
 - Added Consul Connect to the Service
+- create consul connect tests

@@ -10,6 +10,17 @@ register_secret_id_service_with_consul () {
       "service": {
         "name": "approle",
         "port": 8314,
+        "checks": [
+            {
+                "id": "api",
+                "name": "Factory Service SecretID",
+                "http": "http://127.0.0.1:8314/health",
+                "tls_skip_verify": true,
+                "method": "GET",
+                "interval": "10s",
+                "timeout": "1s"
+            }
+        ],
         "connect": { "sidecar_service": {} }
       }
       
