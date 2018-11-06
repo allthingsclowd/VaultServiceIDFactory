@@ -8,6 +8,8 @@ addons:
     - curl
 go:
 - '1.10'
+services:
+  - docker
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
@@ -25,6 +27,7 @@ script:
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 - bash scripts/install_factory_service.sh
 - bash scripts/verify_factory_service.sh
+- docker build -t allthingscloud/vaultsecretidfactory -f dockerfile . 
 deploy:
   provider: releases
   api_key:
@@ -33,6 +36,11 @@ deploy:
   file: 
     - "/usr/local/bin/VaultServiceIDFactory"
   skip_cleanup: true
+  on:
+    repo: allthingsclowd/VaultServiceIDFactory
+    tags: true
+  provider: script
+  script: bash scripts/docker_push.sh
   on:
     repo: allthingsclowd/VaultServiceIDFactory
     tags: true
