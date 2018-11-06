@@ -20,13 +20,15 @@ before_script:
 - bash scripts/vault_basic_role_config.sh
 - bash scripts/configure_app_role.sh
 - bash scripts/test_appRole.sh
-- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
+- sudo cp /usr/local/bin/VaultServiceIDFactory /home/travis/VaultServiceIDFactory
 script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 - bash scripts/install_factory_service.sh
+- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - bash scripts/verify_factory_service.sh
+- bash -c 'll /home/travis/VaultServiceIDFactory'
 - docker build -t allthingscloud/vaultsecretidfactory -f dockerfile . 
 deploy:
   provider: releases
