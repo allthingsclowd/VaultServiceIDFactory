@@ -27,6 +27,8 @@ script:
 - sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
 - bash scripts/install_factory_service.sh
 - bash scripts/verify_factory_service.sh
+- bash -c 'pwd'
+- bash -c 'ls -al'
 - docker build -t allthingscloud/vaultsecretidfactory -f dockerfile . 
 deploy:
   provider: releases
