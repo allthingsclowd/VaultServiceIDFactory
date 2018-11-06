@@ -58,6 +58,74 @@ How does the application get it's Vault token?
 
 ![image](https://user-images.githubusercontent.com/9472095/47515764-9bb97600-d87b-11e8-90a4-990ca1a19bce.png)
 
+
+## Docker Image OverReview
+
+__Building a new Image__
+- Ensure to include all dependencies when compiling the go binary
+``` golang
+go get -t ./...
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o VaultServiceIDFactory main.go
+```
+
+- Build a new image (using Alpine imahe instead of scratch as need some additional commands)
+``` bash
+docker build -t vaultsecretidfactory -f dockerfile .
+```
+
+- Upload to docker registry
+```bash
+docker login [enter valid credentials]
+docker tag vaultsecretidfactory allthingscloud/vaultsecretidfactory
+docker push allthingscloud/vaultsecretidfactory
+```
+
+__Run the application__
+
+- This container expects that the accompanying Vault service is running and the bootstrapping tokens have been created in the mounted directory
+``` bash
+vagrant up leader01
+docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
+```
+
+- If all went according to plan you should see the following output
+``` bash
+Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
+[1] 58723
+Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ Incoming port number: 8314
+Incoming vault address: http://192.168.2.11:8200
+URL: 0.0.0.0:8314
+Running Docker locally with access to vagrant instance filesystem
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   845  100   338  100   507  12518  18777 --:--:-- --:--:-- --:--:-- 31296
+
+Debug Vars Start
+
+VAULT_ADDR:> http://192.168.2.11:8200
+
+URL:> /v1/sys/wrapping/unwrap
+
+TOKEN:> s.3VROD6THgIddAYWKt3sX2Ei1
+
+DATA:> map[]
+
+VERB:> POST
+
+Debug Vars End
+response Status: 200 OK
+response Headers: map[Cache-Control:[no-store] Content-Type:[application/json] Date:[Tue, 06 Nov 2018 15:19:15 GMT] Content-Length:[413]]
+
+
+response result:  map[renewable:false lease_duration:0 data:<nil> wrap_info:<nil> warnings:<nil> auth:map[policies:[default provisioner] token_policies:[default provisioner] metadata:<nil> entity_id: client_token:s.5BcLKYnzQWQR0pO9ikxTcrJ3 accessor:4RLti001aNJssblF2LFb3899 lease_duration:3600 renewable:true token_type:service] request_id:16bb23fa-c1b8-e954-113c-f7914bb0b002 lease_id:]
+2018/11/06 15:19:42 s.5BcLKYnzQWQR0pO9ikxTcrJ3
+Wrapped Token Received: s.3VROD6THgIddAYWKt3sX2Ei1
+UnWrapped Vault Provisioner Role Token Received: s.5BcLKYnzQWQR0pO9ikxTcrJ3
+2018/11/06 15:19:42 INITIALISED
+INITIALISED
+```
+
+
 ## TODO
 
 ### New Features

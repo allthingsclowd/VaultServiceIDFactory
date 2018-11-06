@@ -145,10 +145,13 @@ EOF
 # create provisioner policy
 sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault policy write provisioner provisioner_policy.hcl
 
+# create a provisioner token
+PROVISIONER_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -field=token`
+sudo echo -n ${PROVISIONER_TOKEN} > /usr/local/bootstrap/.provisioner-token
+sudo chmod ugo+r /usr/local/bootstrap/.provisioner-token
 # create a wrapped provisioner token by adding -wrap-ttl=60m
 WRAPPED_PROVISIONER_TOKEN=`sudo VAULT_TOKEN=${VAULT_TOKEN} VAULT_ADDR="http://${IP}:8200" vault token create -policy=provisioner -wrap-ttl=60m -field=wrapping_token`
 sudo echo -n ${WRAPPED_PROVISIONER_TOKEN} > /usr/local/bootstrap/.wrapped-provisioner-token
-
 sudo chmod ugo+r /usr/local/bootstrap/.wrapped-provisioner-token
 
 # # revoke ROOT token now that admin token has been created

@@ -124,7 +124,7 @@ func main() {
 
     portPtr := flag.Int("port", 8314, "Default's to port 8314. Use -port=nnnn to use listen on an alternate port.")
     ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-    vaultAddressPtr := flag.String("vault", "http://localhost:8200", "Vault IP Address - defaults to 192.168.2.11")
+    vaultAddressPtr := flag.String("vault", "http://localhost:8200", "Vault IP Address - defaults to localhost")
     
     flag.Parse()
     vaultAddress = *vaultAddressPtr
