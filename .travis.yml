@@ -41,6 +41,7 @@ deploy:
     tags: true
   provider: script
   script: bash scripts/docker_push.sh
+  skip_cleanup: true
   on:
     repo: allthingsclowd/VaultServiceIDFactory
     tags: true
