@@ -28,7 +28,7 @@ script:
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - sudo cp /usr/local/bin/VaultServiceIDFactory /home/travis/VaultServiceIDFactory
 - bash scripts/verify_factory_service.sh
-- bash -c 'll /home/travis/VaultServiceIDFactory'
+- bash -c 'ls -al /home/travis/VaultServiceIDFactory'
 - docker build -t allthingscloud/vaultsecretidfactory -f dockerfile . 
 deploy:
   provider: releases
