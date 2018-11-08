@@ -130,6 +130,9 @@ INITIALISED
 
 ### New Features
 
+- add vault client to keep token fresh for secret-id factory
+- modify application to receive token from client on every use ?
+- create dedicated vault namesapce for this application
 
 ### Refactor
 
