@@ -15,12 +15,33 @@ else
   echo "Looking for secret keys on Kubernetes"
   # Get the container token
   KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+  echo "Kubernetes PoD Secret: ${KUBE_TOKEN}"
+  echo "Login Vault API Test - http://192.168.2.11:8200/v1/auth/kubernetes/login)"
+  echo "$(curl --request POST \
+                          --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "demo"}' \
+                          http://192.168.2.11:8200/v1/auth/kubernetes/login)"
+  
   # Authenticate against Vault backend and get a Vault token
   VAULT_TOKEN=$(curl --request POST \
                           --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "demo"}' \
                           http://192.168.2.11:8200/v1/auth/kubernetes/login | jq -r .auth.client_token)
 fi
-
+echo "VAULT_TOKEN: ${VAULT_TOKEN}"
+echo "Request a wrapped vault token >>"
+echo $(curl --request POST \
+                                  --data '{
+                                            "policies": [
+                                              "provisioner"
+                                              ],
+                                            "metadata": {
+                                              "user": "Grahams Demo"
+                                              },
+                                            "ttl": "1h",
+                                            "renewable": true
+                                          }' \
+                                  --header "X-Vault-Token: ${VAULT_TOKEN}" \
+                                  --header "X-Vault-Wrap-TTL: 60" \
+                              http://192.168.2.11:8200/v1/auth/token/create)
 WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
                                   --data '{
                                             "policies": [
@@ -36,6 +57,7 @@ WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
                                   --header "X-Vault-Wrap-TTL: 60" \
                               http://192.168.2.11:8200/v1/auth/token/create | jq -r .wrap_info.token)
 
+echo "WRAPPED_PROVISIONER_TOKEN: ${WRAPPED_PROVISIONER_TOKEN}"
 
 curl -s --header "Content-Type: application/json" \
         --request POST \
