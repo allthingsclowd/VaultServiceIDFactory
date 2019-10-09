@@ -18,7 +18,7 @@ else
   # Authenticate against Vault backend and get a Vault token
   VAULT_TOKEN=$(curl --request POST \
                           --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "demo"}' \
-                          http://192.168.9.11:8322/v1/auth/kubernetes/login | jq -r .auth.client_token)
+                          https://192.168.9.11:8322/v1/auth/kubernetes/login | jq -r .auth.client_token)
 fi
 
 WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
@@ -34,7 +34,7 @@ WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
                                           }' \
                                   --header "X-Vault-Token: ${VAULT_TOKEN}" \
                                   --header "X-Vault-Wrap-TTL: 60" \
-                              http://192.168.9.11:8322/v1/auth/token/create | jq -r .wrap_info.token)
+                              https://192.168.9.11:8322/v1/auth/token/create | jq -r .wrap_info.token)
 
 
 curl -s --header "Content-Type: application/json" \

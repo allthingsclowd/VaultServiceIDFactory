@@ -132,7 +132,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 func main() {
 
     portPtr := flag.Int("port", 8314, "Default's to port 8314. Use -port=nnnn to use listen on an alternate port.")
-    ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
+    ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
     vaultAddressPtr := flag.String("vault", "https://localhost:8322", "Vault IP Address - defaults to localhost")
     
     flag.Parse()

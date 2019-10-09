@@ -16,7 +16,7 @@ setup_environment () {
     export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
     export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
     export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
-    export VAULT_ADDR=http://${IP}:8322
+    export VAULT_ADDR=https://${IP}:8322
     export VAULT_SKIP_VERIFY=true
 
     VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
