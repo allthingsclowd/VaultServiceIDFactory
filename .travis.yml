@@ -22,7 +22,7 @@ before_script:
 script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
-- sudo VAULT_ADDR=http://127.0.0.1:8200 vault status
+- sudo VAULT_ADDR=https://127.0.0.1:8322 vault status
 - bash scripts/install_factory_service.sh
 - sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - sudo cp /usr/local/bin/VaultServiceIDFactory /home/travis/VaultServiceIDFactory
