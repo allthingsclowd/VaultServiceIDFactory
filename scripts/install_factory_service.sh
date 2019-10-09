@@ -142,8 +142,8 @@ setup_environment () {
     
     source /usr/local/bootstrap/var.env
     
-    IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
-    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+    IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8}'`
+    CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
     IP=${CIDR%%/24}
     VAULT_IP=${LEADER_IP}
     
@@ -152,7 +152,13 @@ setup_environment () {
         VAULT_IP=${IP}
     fi
 
-    export VAULT_ADDR=http://${VAULT_IP}:8200
+    echo 'Set environmental bootstrapping data in VAULT'
+    export VAULT_TOKEN=reallystrongpassword
+    export VAULT_ADDR=https://${IP}:8322
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_ADDR=http://${VAULT_IP}:8322
     export VAULT_SKIP_VERIFY=true
 
     if [ -d /vagrant ]; then

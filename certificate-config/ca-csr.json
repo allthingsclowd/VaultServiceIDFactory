@@ -1,0 +1,18 @@
+{
+  "CN": "allthingscloud.eu",
+  "hosts": [
+    "allthingscloud.eu",
+    "github.com/allthingsclowd"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "ST": "SY5",
+      "L": "Pontesbury"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start the first process
-./VaultServiceIDFactory -vault="http://192.168.2.11:8200"&
+./VaultServiceIDFactory -vault="http://192.168.9.11:8322"&
 status=$?
 if [ ${status} -ne 0 ]; then
   echo "Failed to start VaultServiceIDFactory: ${status}"
@@ -18,7 +18,7 @@ else
   # Authenticate against Vault backend and get a Vault token
   VAULT_TOKEN=$(curl --request POST \
                           --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "demo"}' \
-                          http://192.168.2.11:8200/v1/auth/kubernetes/login | jq -r .auth.client_token)
+                          http://192.168.9.11:8322/v1/auth/kubernetes/login | jq -r .auth.client_token)
 fi
 
 WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
@@ -34,7 +34,7 @@ WRAPPED_PROVISIONER_TOKEN=$(curl --request POST \
                                           }' \
                                   --header "X-Vault-Token: ${VAULT_TOKEN}" \
                                   --header "X-Vault-Wrap-TTL: 60" \
-                              http://192.168.2.11:8200/v1/auth/token/create | jq -r .wrap_info.token)
+                              http://192.168.9.11:8322/v1/auth/token/create | jq -r .wrap_info.token)
 
 
 curl -s --header "Content-Type: application/json" \

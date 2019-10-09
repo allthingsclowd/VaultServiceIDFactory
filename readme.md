@@ -93,7 +93,7 @@ docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
 Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ docker run -v $PWD:/usr/local/bootstrap/ allthingscloud/vaultsecretidfactory &
 [1] 58723
 Grahams-MacBook-Pro:VaultServiceIDFactory grazzer$ Incoming port number: 8314
-Incoming vault address: http://192.168.2.11:8200
+Incoming vault address: http://192.168.9.11:8322
 URL: 0.0.0.0:8314
 Running Docker locally with access to vagrant instance filesystem
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -102,7 +102,7 @@ Running Docker locally with access to vagrant instance filesystem
 
 Debug Vars Start
 
-VAULT_ADDR:> http://192.168.2.11:8200
+VAULT_ADDR:> http://192.168.9.11:8322
 
 URL:> /v1/sys/wrapping/unwrap
 

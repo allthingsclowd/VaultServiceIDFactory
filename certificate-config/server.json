@@ -1,0 +1,22 @@
+{
+  "CN": "leader01",
+  "hosts": [
+    "leader01.allthingscloud.eu",
+    "127.0.0.1",
+    "192.168.9.11",
+    "81.143.215.2",
+    "leader01",
+    "hashistack.ie"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "ST": "Shropshire",
+      "L": "Pontesbury"
+    }
+  ]
+}

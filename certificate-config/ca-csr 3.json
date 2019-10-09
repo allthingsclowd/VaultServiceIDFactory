@@ -1,0 +1,18 @@
+{
+  "CN": "hashistack.ie",
+  "hosts": [
+    "example.net",
+    "www.example.net"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "UK",
+      "ST": "Shropshire",
+      "L": "Pontesbury"
+    }
+  ]
+}
