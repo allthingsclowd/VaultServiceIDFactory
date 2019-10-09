@@ -57,8 +57,8 @@ create_service_user () {
 
 set -x
 
-IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
-CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8}'`
+CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
 IP=${CIDR%%/24}
 
 if [ -d /vagrant ]; then
@@ -70,6 +70,13 @@ fi
 if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
+
+echo 'Set environmental bootstrapping data in VAULT'
+export VAULT_TOKEN=reallystrongpassword
+export VAULT_ADDR=https://${IP}:8322
+export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
+export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
+export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
 
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin
@@ -92,23 +99,35 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   #delete old token if present
   [ -f /usr/local/bootstrap/.vault-token ] && sudo rm /usr/local/bootstrap/.vault-token
 
+  #copy token to known location
+  echo "reallystrongpassword" > /usr/local/bootstrap/.vault-token
+  sudo chmod ugo+r /usr/local/bootstrap/.vault-token
+
+  # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
+  mkdir -p /etc/vault.d
+  sudo mkdir -p /etc/pki/tls/private
+  sudo mkdir -p /etc/pki/tls/certs
+  sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
+  sudo groupadd vaultcerts
+  sudo chgrp -R vaultcerts /etc/pki/tls /etc/vault.d
+  sudo chmod -R 770 /etc/pki/tls /etc/vault.d
+  create_service_user vault
+  sudo usermod -a -G vaultcerts vault
+  sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
+
   #start vault
   if [ "${TRAVIS}" == "true" ]; then
-    create_service_user vault
-    sudo -u vault cp -r /usr/local/bootstrap/conf/vault.d/* /etc/vault.d/.
-    sudo /usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/etc/vault.d/vault.hcl &> ${LOG} &
-    sleep 3
-    cat ${LOG}
+      sudo /usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -dev-listen-address=${IP}:8322 -config=/etc/vault.d/vault.hcl &> ${LOG} &
+      sleep 15
+      cat ${LOG}
   else
-    create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server  -dev -dev-listen-address=${IP}:8200 -config=/usr/local/bootstrap/conf/vault.d/vault.hcl"
-    sudo systemctl start vault
-    sudo systemctl status vault
+      create_service vault "HashiCorp's Sercret Management Service" "/usr/local/bin/vault server -dev -dev-root-token-id="reallystrongpassword" -config=/etc/vault.d/vault.hcl"
+      sudo systemctl start vault
+      #sudo systemctl status vault
   fi
   echo vault started
-  sleep 3 
+  sleep 15 
   
-  #copy token to known location
-  sudo find / -name '.vault-token' -exec cp {} /usr/local/bootstrap/.vault-token \; -quit
-  sudo chmod ugo+r /usr/local/bootstrap/.vault-token
 
 fi

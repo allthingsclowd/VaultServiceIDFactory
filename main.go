@@ -13,6 +13,15 @@ import (
     "os"
     "strings"
     "bytes"
+    "crypto/tls"
+    "crypto/x509"
+    "io/ioutil"
+)
+
+var (
+	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/hashistack-client.pem", "A PEM eoncoded certificate file.")
+	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem", "A PEM encoded private key file.")
+	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
 )
 
 type vault struct {
@@ -123,8 +132,8 @@ func health(w http.ResponseWriter, r *http.Request) {
 func main() {
 
     portPtr := flag.Int("port", 8314, "Default's to port 8314. Use -port=nnnn to use listen on an alternate port.")
-    ipPtr := flag.String("ip", "0.0.0.0", "Default's to all interfaces by using 0.0.0.0")
-    vaultAddressPtr := flag.String("vault", "http://localhost:8200", "Vault IP Address - defaults to localhost")
+    ipPtr := flag.String("ip", "127.0.0.1", "Default's to all interfaces by using 127.0.0.1")
+    vaultAddressPtr := flag.String("vault", "https://localhost:8322", "Vault IP Address - defaults to localhost")
     
     flag.Parse()
     vaultAddress = *vaultAddressPtr
@@ -151,6 +160,29 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
     
     var success = true
     var result map[string]interface{}
+
+    // Load client cert
+	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Load CA cert
+	caCert, err := ioutil.ReadFile(*caFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	// Setup HTTPS client
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
+	transport := &http.Transport{TLSClientConfig: tlsConfig}
+	client := &http.Client{Transport: transport}
     
     fmt.Println("\nDebug Vars Start")
 	fmt.Println("\nVAULT_ADDR:>", vaultAddress)
@@ -180,7 +212,7 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
         req.Header.Set("X-Vault-Wrap-TTL","5m")
     }
 
-    client := &http.Client{}
+    //client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
         fmt.Println("Failed to query the Vault API \nError : ", err)

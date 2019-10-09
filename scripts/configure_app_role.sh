@@ -2,15 +2,15 @@
 
 set -x
 
-IFACE=`route -n | awk '$1 == "192.168.2.0" {print $8}'`
-CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.2" {print $2}'`
+IFACE=`route -n | awk '$1 == "192.168.9.0" {print $8}'`
+CIDR=`ip addr show ${IFACE} | awk '$2 ~ "192.168.9" {print $2}'`
 IP=${CIDR%%/24}
 
 if [ "${TRAVIS}" == "true" ]; then
 IP=${IP:-127.0.0.1}
 fi
 
-export VAULT_ADDR=http://${IP}:8200
+export VAULT_ADDR=https://${IP}:8322
 export VAULT_SKIP_VERIFY=true
 
 VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
@@ -28,6 +28,9 @@ EOF
 # Create the approle backend
 curl -s \
     --location \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
     --data @approle.json \
@@ -43,6 +46,9 @@ EOF
 # Write the policy
 curl -s \
     --location \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
     --data @id-factory-secret-read.json \
@@ -53,6 +59,9 @@ curl -s \
 # List ACL policies
 curl -s \
     --location \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request LIST \
     ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -62,6 +71,9 @@ curl -s \
 
 # Check if AppRole Exists
 APPROLEID=`curl -s \
+   --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+   --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+   --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
@@ -85,13 +97,19 @@ EOF
     # Create the AppRole role
     curl \
         --location \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @id-factory-approle-role.json \
         ${VAULT_ADDR}/v1/auth/approle/role/id-factory | jq .
 
     APPROLEID=`curl  \
-   --header "X-Vault-Token: ${VAULT_TOKEN}" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
 fi

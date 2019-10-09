@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
     ENV['GO_GUEST_PORT']||="808"
     ENV['GO_HOST_PORT']||="808"
     ENV['LEADER_NAME']||="leader01"
-    ENV['LEADER_IP']||="192.168.2.11"
+    ENV['LEADER_IP']||="192.168.9.11"
     ENV['SERVER_COUNT']||="1"
     ENV['DD_API_KEY']||="DON'T FORGET TO SET ME FROM CLI PRIOR TO DEPLOYMENT"
     
@@ -28,12 +28,12 @@ Vagrant.configure("2") do |config|
         leader01.vm.provision "shell", path: "scripts/test_appRole.sh", run: "always"
         leader01.vm.network "private_network", ip: ENV['LEADER_IP']
         leader01.vm.network "forwarded_port", guest: 8500, host: 8500
-        leader01.vm.network "forwarded_port", guest: 8200, host: 8200
+        leader01.vm.network "forwarded_port", guest: 8322, host: 8322
     end
 
     config.vm.define "factory01" do |devsvr|
         devsvr.vm.hostname = "factory01"
-        devsvr.vm.network "private_network", ip: "192.168.2.10"
+        devsvr.vm.network "private_network", ip: "192.168.9.10"
         devsvr.vm.provision "shell", path: "scripts/install_nomad.sh", run: "always"
         devsvr.vm.provision "shell", path: "scripts/install_factory_service.sh"
         devsvr.vm.network "forwarded_port", guest: 8314, host: 8314
@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "testclient01" do |clientsvr|
         clientsvr.vm.hostname = "testclient01"
-        clientsvr.vm.network "private_network", ip: "192.168.2.9"
+        clientsvr.vm.network "private_network", ip: "192.168.9.9"
         clientsvr.vm.provision "shell", path: "scripts/verify_factory_service.sh"
     end
     
