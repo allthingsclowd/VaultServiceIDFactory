@@ -14,19 +14,11 @@ before_script:
 - pushd packer
 - if [ $VAGRANT_CLOUD_TOKEN ] ; then packer validate template.json ; fi
 - popd
-- bash scripts/install_consul.sh
-- bash scripts/install_vault.sh
-- bash scripts/vault_basic_role_config.sh
-- bash scripts/configure_app_role.sh
-- bash scripts/test_appRole.sh
 script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
-- sudo VAULT_ADDR=https://127.0.0.1:8322 vault status
 - bash scripts/install_factory_service.sh
-- sudo cp /home/travis/.vault-token /usr/local/bootstrap/.vault-token
 - sudo cp /usr/local/bin/VaultServiceIDFactory /home/travis/VaultServiceIDFactory
-- bash scripts/verify_factory_service.sh
 deploy:
   provider: releases
   api_key:
