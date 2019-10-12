@@ -104,7 +104,7 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
   sudo chmod ugo+r /usr/local/bootstrap/.vault-token
 
   # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
-  mkdir -p /etc/vault.d
+  sudo mkdir -p /etc/vault.d
   sudo mkdir -p /etc/pki/tls/private
   sudo mkdir -p /etc/pki/tls/certs
   sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
