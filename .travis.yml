@@ -8,7 +8,6 @@ addons:
     - curl
 go:
 - '1.10'
-
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
@@ -22,10 +21,10 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: ZZRYxzcMj2XDUO/YuV6JDnN8OoSSAfhS3edXuXTsZQsSfd7szIWDiIsmOo8YCwNiLMMxmpTkEQ4qLc6as8nVT4kA4THuEEpLIWjxM1yqFKWdAhAol8WI+WXuL7nka2Y6krHyn1IEK9nUJOzYGBIm5cW/2vKx47Pge8Fr9S3uiVyZBRhd9vazOrwwdfEca3i9eKtyXeMXtgot99pk9kVbF/SCur3OBiNIDqvY5e0YRaec/5z8of4Vfrc4v0sJrN7p91NvALUiqUOJen0BtRxQQrUZxE2WJ/WV7iVgJ0gYUAZ00NxMAiZth4Tb6P1apyYI+atiVHsWPmBMiGjiklRoOok9z/3XJU2ZmXtDGfRW7dk6zt+7dvgwOkUV+5DIEx7NCGQlrGny+8M9MoZUSUy+oIT+0UmunmXAaOgEicHQy+KtRYgT2OsguPRXjs0pWiQn1IEtiOgILNQkggvYnN0eOvs+ZbSyG1hyXISePosfUJkySMqu75mQq7ZlefFAiDev3NcJmFRi2ZBkqRRJe2LXVYTyu2inVXjg/kTwunG7gPy2pHH0Cveu9alD6sQ9S6pL3Jfh0GpcSv3Fn54XTclPfnWrH+6S6zNINKlt33NSer8BDld0rmgwoyTwFn7TC74m93C9p9N27RCVvHu6LzGp7X7R+yZKNqVgy7RmMS/C2DI=
+    secure: WR07DHJhwMLi9Xa43zZ7Q2jOWLRTY0GonZuLaSPImAs+Lkq1KSr2LhCRk6wnJWTWLIZ0F5KiSU6qy8BkxleB2V/EeDUGfnnwdCHoN5nv3zRsKvbfCcxe4kiKAjCwzeMj3KDbxYIpyMyrpA0WiJv1An76pYe5fUwNkqe5mDktH3lpdLUJOnm9EJO3euojKL5gjK9BkZ9jjLNRtuGV3X0qgENm7FaEr7Cz6yRwMp5vAJKiNo/2B3VdMXUu4OtcYz+xqWADM4yLVy3nmbnS0Ehq3l3ykGWpyzSumlQYHmtwh5rndQPrCko7pKBfGervTcgU56KDP0X0tXU6Fnh7Cyo96chdTAtdd3bmCaJlyyi3q/rNX5hUGylcGUiDFbuR6YOkz2q9lB06AyBavboznok9/HDaJJs6WsNB125u5oj6OAYnzA6CF44l/bPZkqSzsMnqRrs5gVdQ+sEfRzYtMUrvgVpVj89uD3JtHaNqeMrbJJL4U5EpE45Cq3jUsxX0fW8mi60b4Jcl193K7pLYKugIbw5rHS2niYFbOdm0Bp04+MnQ/U4/fUsKnPEq5zCrcohNJ6R+iJVi8U9LLjk1d1FRBY40smyvotb/OYyqd4MgrPUebILGajwNtiEVZGTnZrDuNZ3m4M1sub5azitMZh6ByVKxI6TPhForlHlXRkgeMVw=
   file_glob: true
-  file: 
-    - "/usr/local/bin/VaultServiceIDFactory"
+  file:
+  - "/usr/local/bin/VaultServiceIDFactory"
   skip_cleanup: true
   on:
     repo: allthingsclowd/VaultServiceIDFactory
