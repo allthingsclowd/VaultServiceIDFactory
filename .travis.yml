@@ -25,3 +25,5 @@ deploy:
   file: "/usr/local/bin/VaultServiceIDFactory"
   on:
     repo: allthingsclowd/VaultServiceIDFactory
+    tags: true
+    
