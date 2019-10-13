@@ -7,7 +7,7 @@ addons:
     - jq
     - curl
 go:
-- '1.10'
+- '1.13'
 before_script:
 - sudo rsync -az ${TRAVIS_BUILD_DIR}/ /usr/local/bootstrap/
 - pushd packer
@@ -16,6 +16,7 @@ before_script:
 script:
 - source ./var.env
 - export LEADER_IP=127.0.0.1
+- go version
 - bash scripts/install_factory_service.sh
 - sudo cp /usr/local/bin/VaultServiceIDFactory /home/travis/VaultServiceIDFactory
 deploy:
