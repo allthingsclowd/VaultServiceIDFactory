@@ -172,7 +172,8 @@ install_go_application () {
     
     pushd /usr/local/bootstrap
     go get -t ./...
-    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o VaultServiceIDFactory main.go
+    # CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o VaultServiceIDFactory main.go
+    go build -o VaultServiceIDFactory main.go
     killall VaultServiceIDFactory &>/dev/null
     sudo cp VaultServiceIDFactory /usr/local/bin/.
     popd
