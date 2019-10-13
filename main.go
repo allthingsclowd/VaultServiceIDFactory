@@ -178,12 +178,13 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	// Setup HTTPS client
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
-		RootCAs:      caCertPool,
+        RootCAs:      caCertPool,
+        InsecureSkipVerify: true,
 	}
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 	client := &http.Client{Transport: transport}
-    
+
     fmt.Println("\nDebug Vars Start")
 	fmt.Println("\nVAULT_ADDR:>", vaultAddress)
 	fmt.Println("\nURL:>", url)
