@@ -179,7 +179,7 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
         RootCAs:      caCertPool,
-        InsecureSkipVerify: true,
+    //    InsecureSkipVerify: true,
 	}
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
