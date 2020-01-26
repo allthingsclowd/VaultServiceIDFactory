@@ -28,9 +28,9 @@ EOF
 # Create the approle backend
 curl -s \
     --location \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request POST \
     --data @approle.json \
@@ -46,9 +46,9 @@ EOF
 # Write the policy
 curl -s \
     --location \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request PUT \
     --data @id-factory-secret-read.json \
@@ -59,9 +59,9 @@ curl -s \
 # List ACL policies
 curl -s \
     --location \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     --request LIST \
     ${VAULT_ADDR}/v1/sys/policy | jq .
@@ -71,9 +71,9 @@ curl -s \
 
 # Check if AppRole Exists
 APPROLEID=`curl -s \
-   --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-   --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-   --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+   --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+   --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+   --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
    --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
@@ -97,18 +97,18 @@ EOF
     # Create the AppRole role
     curl \
         --location \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
         --data @id-factory-approle-role.json \
         ${VAULT_ADDR}/v1/auth/approle/role/id-factory | jq .
 
     APPROLEID=`curl  \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
    ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 

@@ -142,9 +142,9 @@ setup_environment () {
     fi
 
     echo 'Set environmental bootstrapping data in VAULT'
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
     export VAULT_ADDR=https://${VAULT_IP}:8322
     export VAULT_SKIP_VERIFY=true
     export SECRET_ID_FACTORY=192.168.9.10
@@ -278,9 +278,9 @@ EOF
 
         SECRET_ID=`curl -s --header "X-Vault-Token: ${WRAPPED_SECRET_ID}" \
             --request POST \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
             ${VAULT_ADDR}/v1/sys/wrapping/unwrap | jq -r .data.secret_id`
         
         echo "SECRET_ID : ${SECRET_ID}"
@@ -300,9 +300,9 @@ EOF
 
         APPTOKEN=`curl -s \
             --request POST \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
             --data @id-factory-secret-id-login.json \
             ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
 
@@ -311,9 +311,9 @@ EOF
         echo "Reading secret using newly acquired token"
 
         RESULT=`curl -s \
-            --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-            --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-            --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+            --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+            --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+            --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
             --header "X-Vault-Token: ${APPTOKEN}" \
             ${VAULT_ADDR}/v1/kv/example_password | jq -r .data.value`
 

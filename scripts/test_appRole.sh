@@ -13,9 +13,9 @@ setup_environment () {
     fi
 
     echo 'Set environmental bootstrapping data in VAULT'
-    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+    export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+    export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+    export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
     export VAULT_ADDR=https://${IP}:8322
     export VAULT_SKIP_VERIFY=true
 
@@ -27,9 +27,9 @@ get_approle_id () {
     
     # retrieve the appRole-id from the approle
     APPROLEID=`curl -s  \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     ${VAULT_ADDR}/v1/auth/approle/role/id-factory/role-id | jq -r .data.role_id`
 
@@ -48,9 +48,9 @@ get_secret_id () {
 
     # Generate a new secret-id
     SECRET_ID=`curl -s \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
         --location \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
@@ -69,9 +69,9 @@ verify_approle_credentials () {
 EOF
 
     APPTOKEN=`curl -s \
-        --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-        --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-        --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+        --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+        --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+        --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
         --request POST \
         --data @id-factory-secret-id-login.json \
         ${VAULT_ADDR}/v1/auth/approle/login | jq -r .auth.client_token`
