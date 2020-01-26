@@ -74,9 +74,9 @@ fi
 echo 'Set environmental bootstrapping data in VAULT'
 export VAULT_TOKEN=reallystrongpassword
 export VAULT_ADDR=https://${IP}:8322
-export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
 
 which /usr/local/bin/vault &>/dev/null || {
     pushd /usr/local/bin

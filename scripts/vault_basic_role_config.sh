@@ -18,9 +18,9 @@ fi
 
 echo 'Set environmental bootstrapping data in VAULT'
 export VAULT_ADDR=https://${IP}:8322
-export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/hashistack-client-key.pem
-export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/hashistack-client.pem
-export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack-ca.pem
+export VAULT_CLIENT_KEY=/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem
+export VAULT_CLIENT_CERT=/usr/local/bootstrap/certificate-config/vault/vault-client.pem
+export VAULT_CACERT=/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem
 
 # enable secret KV version 1
 VAULT_TOKEN=`cat /usr/local/bootstrap/.vault-token`
@@ -41,9 +41,9 @@ EOF
 
 curl -s \
     --header "X-Vault-Token: ${VAULT_TOKEN}" \
-    --cacert "/usr/local/bootstrap/certificate-config/hashistack-ca.pem" \
-    --key "/usr/local/bootstrap/certificate-config/hashistack-client-key.pem" \
-    --cert "/usr/local/bootstrap/certificate-config/hashistack-client.pem" \
+    --cacert "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem" \
+    --key "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem" \
+    --cert "/usr/local/bootstrap/certificate-config/vault/vault-client.pem" \
     --request PUT \
     --data @audit-backend-file.json \
     ${VAULT_ADDR}/v1/sys/audit/file-audit
