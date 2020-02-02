@@ -105,10 +105,17 @@ if [[ "${HOSTNAME}" =~ "leader" ]] || [ "${TRAVIS}" == "true" ]; then
 
   # copy the example certificates into the correct location - PLEASE CHANGE THESE FOR A PRODUCTION DEPLOYMENT
   sudo mkdir -p /etc/vault.d
+  sudo mkdir -p /etc/vault.d/pki/tls/private
+  sudo mkdir -p /etc/vault.d/pki/tls/certs
   sudo mkdir -p /etc/pki/tls/private
   sudo mkdir -p /etc/pki/tls/certs
   sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/pki/tls/private/hashistack-server-key.pem
   sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/hashistack-server.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server-key.pem /etc/vault.d/pki/tls/private/vault-server-key.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-server.pem /etc/pki/tls/certs/vault-server.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/vault-client-key.pem /etc/vault.d/pki/tls/private/vault-client-key.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/vault-client.pem /etc/pki/tls/certs/vault-client.pem
+  sudo cp -r /usr/local/bootstrap/certificate-config/hashistack-ca.pem /etc/ssl/certs/vault-agent-ca.pem
   sudo groupadd vaultcerts
   sudo chgrp -R vaultcerts /etc/pki/tls /etc/vault.d
   sudo chmod -R 770 /etc/pki/tls /etc/vault.d

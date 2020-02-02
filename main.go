@@ -19,9 +19,9 @@ import (
 )
 
 var (
-	certFile = flag.String("cert", "/usr/local/bootstrap/certificate-config/vault/vault-client.pem", "A PEM eoncoded certificate file.")
-	keyFile  = flag.String("key", "/usr/local/bootstrap/certificate-config/vault/vault-client-key.pem", "A PEM encoded private key file.")
-	caFile   = flag.String("CA", "/usr/local/bootstrap/certificate-config/hashistack/hashistack-ca.pem", "A PEM eoncoded CA's certificate file.")
+	vcertFile = flag.String("vaultcert", "/etc/vault.d/pki/tls/certs/vault-client.pem", "A PEM eoncoded vault certificate file.")
+	vkeyFile  = flag.String("vaultkey", "/etc/vault.d/pki/tls/private/vault-client-key.pem", "A PEM encoded vault private key file.")
+	vcaFile   = flag.String("vaultCA", "/etc/ssl/certs/vault-agent-ca.pem", "A PEM eoncoded CA's vault certificate file.")
 )
 
 type vault struct {
@@ -162,13 +162,13 @@ func queryVault(vaultAddress string, url string, token string, data map[string]i
 	var result map[string]interface{}
 
 	// Load client cert
-	cert, err := tls.LoadX509KeyPair(*certFile, *keyFile)
+	cert, err := tls.LoadX509KeyPair(*vcertFile, *vkeyFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Load CA cert
-	caCert, err := ioutil.ReadFile(*caFile)
+	caCert, err := ioutil.ReadFile(*vcaFile)
 	if err != nil {
 		log.Fatal(err)
 	}
